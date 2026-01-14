@@ -134,17 +134,36 @@ Royal_Family_Tree/
 - [x] Render deployment configuration (Procfile, runtime.txt)
 
 ### 🔧 Fixed Issues
-- **Render Deployment Error (2025-01-XX):** Fixed SQLAlchemy 2.0.23 + Python 3.13 compatibility issue
+- **Render Deployment Error - Python/SQLAlchemy Compatibility (2025-01-XX):** Fixed SQLAlchemy 2.0.23 + Python 3.13 compatibility issue
   - Created `runtime.txt` to pin Python 3.11.9
   - Updated SQLAlchemy from 2.0.23 to 2.0.36
+  - Added Flask-SQLAlchemy dependency
   - Solution committed and pushed
 
+- **Render Deployment Error - Circular Import (2025-01-XX):** Fixed circular import between app.py and models.py
+  - Created `db = SQLAlchemy()` directly in app.py before importing models
+  - Models now import db from app after db is initialized
+  - Solution committed and pushed
+
+- **Render Deployment Error - Missing DATABASE_URL (2025-01-XX):** Added validation for DATABASE_URL
+  - Added error message if DATABASE_URL is not set
+  - **Action Required:** Set DATABASE_URL environment variable in Render dashboard
+
 ### 📋 Pending/Next Steps
-- [ ] Deploy backend to Render (after fixing Python version issue)
+- [ ] **CRITICAL:** Set `DATABASE_URL` environment variable in Render dashboard
+  - Create PostgreSQL database in Render
+  - Copy the connection string
+  - Add as `DATABASE_URL` environment variable in Web Service settings
+- [ ] Set other required environment variables in Render:
+  - `SECRET_KEY` (generate a random string)
+  - `ADMIN_TOKEN` (for admin import endpoints)
+  - `ALLOWED_ORIGINS` (include your Netlify frontend URL)
+  - `ROOT_PERSON_ID` (optional, UUID of root person)
+- [ ] Deploy backend to Render (should work after DATABASE_URL is set)
+- [ ] Run database migrations: `flask db upgrade` (via Render shell or SSH)
 - [ ] Deploy frontend to Netlify
 - [ ] Update `API_BASE_URL` in `frontend/api.js` with Render backend URL
 - [ ] Import historical book data using admin endpoints
-- [ ] Set `ROOT_PERSON_ID` environment variable in Render
 - [ ] Test full deployment end-to-end
 
 ## Environment Variables Required

@@ -15,6 +15,13 @@ class Config:
     # Root person ID (optional, will use oldest base person if not set)
     ROOT_PERSON_ID = os.environ.get('ROOT_PERSON_ID')
     
+    # Validate DATABASE_URL is set
+    if not DATABASE_URL:
+        raise ValueError(
+            "DATABASE_URL environment variable is required. "
+            "Please set it in your Render dashboard under Environment Variables."
+        )
+    
     SQLALCHEMY_DATABASE_URI = DATABASE_URL
     SQLALCHEMY_TRACK_MODIFICATIONS = False
     
