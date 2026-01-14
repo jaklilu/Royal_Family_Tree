@@ -211,8 +211,8 @@ nav {
     color: var(--text-secondary);
     font-style: italic;
     margin-bottom: 0.5rem;
-    direction: rtl; /* Amharic is RTL */
-    unicode-bidi: bidi-override;
+    direction: ltr; /* Amharic (Ge'ez script) is LTR, same as English */
+    text-align: center; /* Center align for better appearance */
 }
 
 .person-card.center .person-name-english {
