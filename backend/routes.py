@@ -431,17 +431,14 @@ def import_people():
         
         for idx, person_data in enumerate(people_data):
             try:
-                if 'name_original' not in person_data:
-                    rejected.append({'row': idx, 'reason': 'Missing name_original'})
-                    continue
-                
-                name_original = person_data['name_original'].strip()
+                # Support both formats: 'name_original' (old) or 'english_name' (new)
+                name_original = person_data.get('english_name', person_data.get('name_original', '')).strip()
                 if not name_original:
-                    rejected.append({'row': idx, 'reason': 'Empty name_original'})
+                    rejected.append({'row': idx, 'reason': 'Missing english_name or name_original'})
                     continue
                 
-                # Amharic name (optional)
-                name_amharic = person_data.get('name_amharic', '').strip() or None
+                # Amharic name (optional) - support both 'amharic_name' and 'name_amharic'
+                name_amharic = person_data.get('amharic_name', person_data.get('name_amharic', '')).strip() or None
                 
                 person_id = None
                 if 'id' in person_data and person_data['id']:
@@ -509,6 +506,162 @@ def import_people():
         db.session.rollback()
         logger.error(f'Error importing people: {e}', exc_info=True)
         return get_error_response('SERVER_ERROR', f'Import failed: {str(e)}', 500)
+
+
+@admin_bp.route('/import/combined', methods=['POST'])
+def import_combined():
+    """
+    Import people and relationships from a single CSV-like structure.
+    Accepts format: english_name, amharic_name, english_parent_name, amharic_parent_name
+    """
+    auth_error = check_admin_token()
+    if auth_error:
+        return auth_error
+    
+    try:
+        data = request.get_json()
+        if not data or 'rows' not in data:
+            return get_error_response('BAD_REQUEST', 'Missing "rows" array in request body')
+        
+        rows_data = data['rows']
+        if not isinstance(rows_data, list):
+            return get_error_response('BAD_REQUEST', '"rows" must be an array')
+        
+        # Step 1: Import all people first
+        people_data = []
+        relationships_data = []
+        
+        for row in rows_data:
+            # Extract person data
+            english_name = row.get('english_name', row.get('name_original', '')).strip()
+            if not english_name:
+                continue
+            
+            person_entry = {
+                'english_name': english_name,
+                'amharic_name': row.get('amharic_name', row.get('name_amharic', '')).strip() or None
+            }
+            people_data.append(person_entry)
+            
+            # Extract relationship data
+            english_parent_name = row.get('english_parent_name', row.get('parent_name', '')).strip()
+            if english_parent_name:
+                relationships_data.append({
+                    'child_english_name': english_name,
+                    'parent_english_name': english_parent_name,
+                    'relation_type': row.get('relation_type', 'parent').strip().lower() or 'parent'
+                })
+        
+        # Import people
+        people_result = import_people_batch(people_data)
+        
+        # Step 2: Create name to ID mapping
+        name_to_id = {}
+        for person_entry in people_data:
+            english_name = person_entry['english_name']
+            name_normalized = normalize_name(english_name)
+            person = Person.query.filter_by(name_normalized=name_normalized, layer='base').first()
+            if person:
+                name_to_id[english_name] = str(person.id)
+        
+        # Step 3: Import relationships
+        created_rels = 0
+        rejected_rels = []
+        
+        for idx, rel_data in enumerate(relationships_data):
+            parent_id = name_to_id.get(rel_data['parent_english_name'])
+            child_id = name_to_id.get(rel_data['child_english_name'])
+            
+            if not parent_id:
+                rejected_rels.append({'row': idx, 'reason': f"Parent '{rel_data['parent_english_name']}' not found"})
+                continue
+            
+            if not child_id:
+                rejected_rels.append({'row': idx, 'reason': f"Child '{rel_data['child_english_name']}' not found"})
+                continue
+            
+            # Check if relationship already exists
+            existing = Relationship.query.filter_by(
+                parent_id=parent_id,
+                child_id=child_id,
+                relation_type=rel_data['relation_type']
+            ).first()
+            
+            if existing:
+                continue
+            
+            # Create relationship
+            relationship = Relationship(
+                parent_id=parent_id,
+                child_id=child_id,
+                relation_type=rel_data['relation_type'],
+                visibility='public'
+            )
+            db.session.add(relationship)
+            created_rels += 1
+        
+        db.session.commit()
+        
+        return jsonify({
+            'people': {
+                'created': people_result.get('created', 0),
+                'updated': people_result.get('updated', 0),
+                'rejected': people_result.get('rejected', [])
+            },
+            'relationships': {
+                'created': created_rels,
+                'rejected': rejected_rels
+            },
+            'total_processed': len(rows_data)
+        })
+    
+    except Exception as e:
+        db.session.rollback()
+        logger.error(f'Error in combined import: {e}', exc_info=True)
+        return get_error_response('SERVER_ERROR', f'Import failed: {str(e)}', 500)
+
+
+def import_people_batch(people_data):
+    """Helper function to import a batch of people"""
+    created_count = 0
+    updated_count = 0
+    rejected = []
+    
+    for idx, person_data in enumerate(people_data):
+        try:
+            english_name = person_data['english_name']
+            amharic_name = person_data.get('amharic_name')
+            
+            name_normalized = normalize_name(english_name)
+            
+            # Check if person exists
+            existing = Person.query.filter_by(name_normalized=name_normalized, layer='base').first()
+            
+            if existing:
+                existing.name_original = english_name
+                if amharic_name:
+                    existing.name_amharic = amharic_name
+                updated_count += 1
+            else:
+                person = Person(
+                    name_original=english_name,
+                    name_amharic=amharic_name,
+                    name_normalized=name_normalized,
+                    layer='base'
+                )
+                db.session.add(person)
+                created_count += 1
+        
+        except Exception as e:
+            rejected.append({'row': idx, 'reason': str(e)})
+    
+    db.session.commit()
+    
+    return {
+        'created': created_count,
+        'updated': updated_count,
+        'rejected': rejected
+    }
 
 
 @admin_bp.route('/import/relationships', methods=['POST'])
