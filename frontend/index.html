@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Royal Family Tree</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>Royal Family Tree</h1>
+            <nav>
+                <button id="tree-view-btn" class="nav-btn active">Tree View</button>
+                <button id="relationship-btn" class="nav-btn">Find Relationship</button>
+            </nav>
+        </header>
+
+        <!-- Tree View -->
+        <div id="tree-view" class="view active">
+            <div id="loading" class="loading hidden">
+                <div class="spinner"></div>
+                <p>Loading...</p>
+            </div>
+            
+            <div id="error" class="error hidden"></div>
+            
+            <div id="tree-container" class="tree-container">
+                <!-- Top: Parent -->
+                <div id="parent-section" class="section parent-section">
+                    <!-- Parent card will be inserted here -->
+                </div>
+                
+                <!-- Center: Selected Person -->
+                <div id="center-section" class="section center-section">
+                    <!-- Selected person card will be inserted here -->
+                </div>
+                
+                <!-- Bottom: Children -->
+                <div id="children-section" class="section children-section">
+                    <!-- Children cards will be inserted here -->
+                </div>
+                
+                <!-- SVG for connecting lines -->
+                <svg id="tree-lines" class="tree-lines" xmlns="http://www.w3.org/2000/svg">
+                    <!-- Lines will be drawn here -->
+                </svg>
+            </div>
+        </div>
+
+        <!-- Relationship View -->
+        <div id="relationship-view" class="view hidden">
+            <div class="relationship-container">
+                <h2>Find Relationship Between Two People</h2>
+                
+                <div class="search-group">
+                    <label for="person1-search">Person 1:</label>
+                    <input type="text" id="person1-search" placeholder="Search for person..." autocomplete="off">
+                    <div id="person1-results" class="search-results"></div>
+                    <div id="person1-selected" class="selected-person"></div>
+                </div>
+                
+                <div class="search-group">
+                    <label for="person2-search">Person 2:</label>
+                    <input type="text" id="person2-search" placeholder="Search for person..." autocomplete="off">
+                    <div id="person2-results" class="search-results"></div>
+                    <div id="person2-selected" class="selected-person"></div>
+                </div>
+                
+                <button id="find-relationship-btn" class="btn-primary" disabled>Show Relationship</button>
+                
+                <div id="relationship-result" class="relationship-result hidden">
+                    <h3>Relationship Path:</h3>
+                    <div id="relationship-path"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="api.js"></script>
+    <script src="tree.js"></script>
+    <script>
+        // Navigation
+        document.getElementById('tree-view-btn').addEventListener('click', () => {
+            document.getElementById('tree-view').classList.add('active');
+            document.getElementById('relationship-view').classList.remove('active');
+            document.getElementById('tree-view-btn').classList.add('active');
+            document.getElementById('relationship-btn').classList.remove('active');
+        });
+
+        document.getElementById('relationship-btn').addEventListener('click', () => {
+            document.getElementById('relationship-view').classList.add('active');
+            document.getElementById('tree-view').classList.remove('active');
+            document.getElementById('relationship-btn').classList.add('active');
+            document.getElementById('tree-view-btn').classList.remove('active');
+        });
+
+        // Initialize tree view
+        initTreeView();
+        initRelationshipView();
+    </script>
+</body>
+</html>
+
