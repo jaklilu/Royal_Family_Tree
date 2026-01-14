@@ -3,6 +3,8 @@ from sqlalchemy.dialects.postgresql import UUID
 from sqlalchemy.orm import relationship
 from sqlalchemy.sql import func
 import uuid
+
+# Import db from app - this works because app.py creates db before importing models
 from app import db
 
 

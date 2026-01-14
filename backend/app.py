@@ -1,9 +1,12 @@
 from flask import Flask, request
 from flask_cors import CORS
 from flask_migrate import Migrate
+from flask_sqlalchemy import SQLAlchemy
 import logging
 from config import Config
-from models import db
+
+# Initialize db before importing models
+db = SQLAlchemy()
 
 # Configure logging
 logging.basicConfig(
@@ -22,6 +25,9 @@ def create_app():
     
     # CORS configuration
     CORS(app, origins=Config.ALLOWED_ORIGINS, supports_credentials=False)
+    
+    # Import models after db is initialized
+    from models import Person, Relationship
     
     # Register blueprints
     from routes import api_bp, admin_bp
