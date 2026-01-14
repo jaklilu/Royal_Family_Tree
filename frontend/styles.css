@@ -150,11 +150,12 @@ nav {
 }
 
 .children-section {
-    display: flex;
-    flex-wrap: wrap;
-    justify-content: center;
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
     gap: 1rem;
     min-height: 200px;
+    max-width: 100%;
+    justify-items: center;
 }
 
 /* Person Cards */
@@ -247,20 +248,14 @@ nav {
     font-weight: 500;
 }
 
-/* Responsive Grid for Children */
-@media (min-width: 640px) {
+/* Responsive Grid for Children - Always 4 per row */
+@media (max-width: 640px) {
     .children-section {
         grid-template-columns: repeat(2, 1fr);
     }
 }
 
-@media (min-width: 768px) {
-    .children-section {
-        grid-template-columns: repeat(3, 1fr);
-    }
-}
-
-@media (min-width: 1024px) {
+@media (min-width: 641px) {
     .children-section {
         grid-template-columns: repeat(4, 1fr);
     }

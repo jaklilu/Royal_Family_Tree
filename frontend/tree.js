@@ -177,8 +177,10 @@ function drawConnectingLines() {
             line.setAttribute('stroke-width', '2');
             svg.appendChild(line);
         } else {
-            // Multiple children: horizontal bus with vertical drops
-            const childPositions = Array.from(childCards).map(card => {
+            // Multiple children: horizontal bus with vertical drops to first row only (max 4 children)
+            // Get only first row children (first 4)
+            const firstRowChildren = Array.from(childCards).slice(0, 4);
+            const firstRowPositions = firstRowChildren.map(card => {
                 const rect = card.getBoundingClientRect();
                 return {
                     x: rect.left + rect.width / 2 - containerRect.left,
@@ -186,41 +188,43 @@ function drawConnectingLines() {
                 };
             });
             
-            const minX = Math.min(...childPositions.map(p => p.x));
-            const maxX = Math.max(...childPositions.map(p => p.x));
-            const busY = centerY + 40; // Distance from center to bus line
-            
-            // Horizontal bus line
-            const busLine = document.createElementNS('http://www.w3.org/2000/svg', 'line');
-            busLine.setAttribute('x1', minX);
-            busLine.setAttribute('y1', busY);
-            busLine.setAttribute('x2', maxX);
-            busLine.setAttribute('y2', busY);
-            busLine.setAttribute('stroke', '#4a5568');
-            busLine.setAttribute('stroke-width', '2');
-            svg.appendChild(busLine);
-            
-            // Vertical line from center to bus
-            const centerToBus = document.createElementNS('http://www.w3.org/2000/svg', 'line');
-            centerToBus.setAttribute('x1', centerX);
-            centerToBus.setAttribute('y1', centerY);
-            centerToBus.setAttribute('x2', centerX);
-            centerToBus.setAttribute('y2', busY);
-            centerToBus.setAttribute('stroke', '#4a5568');
-            centerToBus.setAttribute('stroke-width', '2');
-            svg.appendChild(centerToBus);
-            
-            // Vertical drops from bus to each child (first row only)
-            childPositions.forEach(pos => {
-                const dropLine = document.createElementNS('http://www.w3.org/2000/svg', 'line');
-                dropLine.setAttribute('x1', pos.x);
-                dropLine.setAttribute('y1', busY);
-                dropLine.setAttribute('x2', pos.x);
-                dropLine.setAttribute('y2', pos.y);
-                dropLine.setAttribute('stroke', '#4a5568');
-                dropLine.setAttribute('stroke-width', '2');
-                svg.appendChild(dropLine);
-            });
+            if (firstRowPositions.length > 0) {
+                const minX = Math.min(...firstRowPositions.map(p => p.x));
+                const maxX = Math.max(...firstRowPositions.map(p => p.x));
+                const busY = centerY + 40; // Distance from center to bus line
+                
+                // Horizontal bus line (only across first row)
+                const busLine = document.createElementNS('http://www.w3.org/2000/svg', 'line');
+                busLine.setAttribute('x1', minX);
+                busLine.setAttribute('y1', busY);
+                busLine.setAttribute('x2', maxX);
+                busLine.setAttribute('y2', busY);
+                busLine.setAttribute('stroke', '#4a5568');
+                busLine.setAttribute('stroke-width', '2');
+                svg.appendChild(busLine);
+                
+                // Vertical line from center to bus
+                const centerToBus = document.createElementNS('http://www.w3.org/2000/svg', 'line');
+                centerToBus.setAttribute('x1', centerX);
+                centerToBus.setAttribute('y1', centerY);
+                centerToBus.setAttribute('x2', centerX);
+                centerToBus.setAttribute('y2', busY);
+                centerToBus.setAttribute('stroke', '#4a5568');
+                centerToBus.setAttribute('stroke-width', '2');
+                svg.appendChild(centerToBus);
+                
+                // Vertical drops from bus to each child in first row only (max 4)
+                firstRowPositions.forEach(pos => {
+                    const dropLine = document.createElementNS('http://www.w3.org/2000/svg', 'line');
+                    dropLine.setAttribute('x1', pos.x);
+                    dropLine.setAttribute('y1', busY);
+                    dropLine.setAttribute('x2', pos.x);
+                    dropLine.setAttribute('y2', pos.y);
+                    dropLine.setAttribute('stroke', '#4a5568');
+                    dropLine.setAttribute('stroke-width', '2');
+                    svg.appendChild(dropLine);
+                });
+            }
         }
     }
     
