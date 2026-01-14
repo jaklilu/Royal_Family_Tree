@@ -148,6 +148,10 @@ Royal_Family_Tree/
 - **Render Deployment Error - Missing DATABASE_URL (2025-01-XX):** Added validation for DATABASE_URL
   - Added error message if DATABASE_URL is not set
   - **Action Required:** Set DATABASE_URL environment variable in Render dashboard
+- **Render Python Version:** Created `runtime.txt` in root directory
+  - Render automatically detects Python version from `runtime.txt` (no manual setting needed)
+  - Format: `python-3.11.9`
+  - If still using Python 3.13, trigger a manual redeploy
 
 ### 📋 Pending/Next Steps
 - [ ] **CRITICAL:** Set `DATABASE_URL` environment variable in Render dashboard

@@ -102,7 +102,9 @@ Royal_Family_Tree/
    - **Build Command**: `cd backend && pip install -r requirements.txt`
    - **Start Command**: `cd backend && gunicorn app:app`
    - **Environment**: Python 3
-   - **Python Version**: Set to 3.11.9 in Render dashboard (Settings → Python Version) OR ensure `runtime.txt` is in the root directory
+   - **Python Version**: Render automatically detects from `runtime.txt` in the root directory (already created)
+     - No manual setting needed - Render reads `runtime.txt` automatically
+     - If it's still using Python 3.13, try a manual redeploy after the latest commit
 
 4. **Set environment variables in Render dashboard:**
    ```
