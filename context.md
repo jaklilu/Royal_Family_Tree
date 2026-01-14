@@ -158,20 +158,21 @@ Royal_Family_Tree/
 
 ### 📋 Pending/Next Steps
 - [x] **Deploy backend to Render** ✅ (Successfully deployed!)
-- [ ] **CRITICAL:** Set `DATABASE_URL` environment variable in Render dashboard (if not already set)
-  - Create PostgreSQL database in Render
-  - Copy the connection string
-  - Add as `DATABASE_URL` environment variable in Web Service settings
-- [ ] Set other required environment variables in Render:
-  - `SECRET_KEY` (generate a random string)
-  - `ADMIN_TOKEN` (for admin import endpoints)
-  - `ALLOWED_ORIGINS` (include your Netlify frontend URL)
-  - `ROOT_PERSON_ID` (optional, UUID of root person)
-- [ ] Run database migrations: `flask db upgrade` (via Render shell or SSH)
-- [ ] Deploy frontend to Netlify
+- [x] **Deploy frontend to Netlify** ✅ (User confirmed both are running!)
+- [ ] **CRITICAL:** Run database migration for `name_amharic` field:
+  - In Render: Web Service → Shell → `cd backend && flask db upgrade`
+  - Or manually: `ALTER TABLE people ADD COLUMN name_amharic TEXT;`
+- [ ] Set environment variables in Render (if not already set):
+  - `DATABASE_URL` (PostgreSQL connection string)
+  - `SECRET_KEY` (random string)
+  - `ADMIN_TOKEN` (for admin import)
+  - `ALLOWED_ORIGINS` (Netlify frontend URL)
+  - `ROOT_PERSON_ID` (optional)
 - [ ] Update `API_BASE_URL` in `frontend/api.js` with Render backend URL
-- [ ] Import historical book data using admin endpoints
-- [ ] Test full deployment end-to-end
+- [ ] **Ready to import:** Use admin import tool at `/admin-import.html`
+- [ ] Import first batch: King Sahle Selassie + 15 children
+- [ ] Test tree navigation
+- [ ] Continue importing remaining ~2000 names
 
 ## Environment Variables Required
 
