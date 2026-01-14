@@ -152,9 +152,13 @@ Royal_Family_Tree/
   - Render automatically detects Python version from `runtime.txt` (no manual setting needed)
   - Format: `python-3.11.9`
   - If still using Python 3.13, trigger a manual redeploy
+- **Render Deployment - psycopg2-binary Compatibility (2025-01-XX):** Fixed psycopg2-binary Python 3.13 compatibility
+  - Updated psycopg2-binary from 2.9.9 to 2.9.10
+  - **Status:** ✅ Deployment successful!
 
 ### 📋 Pending/Next Steps
-- [ ] **CRITICAL:** Set `DATABASE_URL` environment variable in Render dashboard
+- [x] **Deploy backend to Render** ✅ (Successfully deployed!)
+- [ ] **CRITICAL:** Set `DATABASE_URL` environment variable in Render dashboard (if not already set)
   - Create PostgreSQL database in Render
   - Copy the connection string
   - Add as `DATABASE_URL` environment variable in Web Service settings
@@ -163,7 +167,6 @@ Royal_Family_Tree/
   - `ADMIN_TOKEN` (for admin import endpoints)
   - `ALLOWED_ORIGINS` (include your Netlify frontend URL)
   - `ROOT_PERSON_ID` (optional, UUID of root person)
-- [ ] Deploy backend to Render (should work after DATABASE_URL is set)
 - [ ] Run database migrations: `flask db upgrade` (via Render shell or SSH)
 - [ ] Deploy frontend to Netlify
 - [ ] Update `API_BASE_URL` in `frontend/api.js` with Render backend URL
