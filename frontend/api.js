@@ -1,7 +1,7 @@
 // API configuration
 const API_BASE_URL = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1'
     ? 'http://localhost:5000'
-    : 'https://your-render-backend.onrender.com';  // Update with your Render URL
+    : 'https://royal-family-tree.onrender.com';  // Render backend URL
 
 // Debounce helper
 function debounce(func, wait) {
@@ -73,4 +73,5 @@ const api = {
 if (typeof module !== 'undefined' && module.exports) {
     module.exports = { api, debounce };
 }
+
 
