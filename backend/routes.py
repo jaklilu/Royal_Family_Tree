@@ -95,7 +95,7 @@ def search():
         # Base query - only base layer for Phase 1
         base_query = Person.query.filter_by(layer='base')
         
-        # Search: exact match, starts with, contains
+        # Search: exact match, starts with, contains (English names)
         exact_matches = base_query.filter(Person.name_normalized == normalized_query).all()
         starts_with = base_query.filter(
             Person.name_normalized.like(f'{normalized_query}%')
@@ -105,6 +105,17 @@ def search():
         ).filter(
             ~Person.name_normalized.like(f'{normalized_query}%')
         ).all()
+        
+        # Also search Amharic names if query contains non-ASCII characters (likely Amharic)
+        if any(ord(char) > 127 for char in query):
+            amharic_matches = base_query.filter(
+                Person.name_amharic.ilike(f'%{query}%')
+            ).all()
+            # Merge without duplicates
+            existing_ids = {p.id for p in exact_matches + starts_with + contains}
+            for match in amharic_matches:
+                if match.id not in existing_ids:
+                    contains.append(match)
         
         # Combine and limit to 25
         results = exact_matches + starts_with + contains[:25 - len(exact_matches) - len(starts_with)]
