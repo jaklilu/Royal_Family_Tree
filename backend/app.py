@@ -19,6 +19,9 @@ def create_app():
     app = Flask(__name__)
     app.config.from_object(Config)
     
+    # Configure JSON to preserve UTF-8 characters (for Amharic names)
+    app.config['JSON_AS_ASCII'] = False
+    
     # Initialize extensions
     db.init_app(app)
     migrate = Migrate(app, db)
@@ -49,9 +52,11 @@ def create_app():
         logger.error(f'Internal error: {error}', exc_info=True)
         return {'error': {'code': 'SERVER_ERROR', 'message': 'Internal server error'}}, 500
     
-    # Cache headers for read-only API
+    # Cache headers for read-only API and UTF-8 encoding
     @app.after_request
     def add_cache_headers(response):
+        # Ensure UTF-8 encoding for all responses
+        response.charset = 'utf-8'
         if request.path.startswith('/api/'):
             response.cache_control.max_age = 300  # 5 minutes
         return response

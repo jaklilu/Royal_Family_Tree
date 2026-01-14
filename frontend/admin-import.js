@@ -62,6 +62,8 @@ function handleFile(file) {
     }
     
     const reader = new FileReader();
+    // Read file as UTF-8 to preserve Amharic characters
+    reader.readAsText(file, 'UTF-8');
     reader.onload = (e) => {
         try {
             csvData = parseCSV(e.target.result);
