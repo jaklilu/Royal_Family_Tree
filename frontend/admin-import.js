@@ -183,8 +183,20 @@ async function startImport() {
         log('🎉 You can now view the tree!', 'success');
         
     } catch (error) {
-        log(`❌ Import failed: ${error.message}`, 'error');
+        let errorMsg = error.message;
+        
+        // Provide more helpful error messages
+        if (error.message === 'Failed to fetch') {
+            errorMsg = 'Failed to fetch - Check:\n1. Backend URL is correct\n2. ALLOWED_ORIGINS includes this site\n3. Backend is running (test /health endpoint)\n4. Check browser console (F12) for details';
+        }
+        
+        log(`❌ Import failed: ${errorMsg}`, 'error');
         console.error('Import error:', error);
+        
+        // Log additional debugging info
+        const config = getConfig();
+        log(`Backend URL: ${config.backendUrl}`, 'info');
+        log(`Try testing: ${config.backendUrl}/health`, 'info');
     } finally {
         isImporting = false;
         document.getElementById('import-btn').disabled = false;
