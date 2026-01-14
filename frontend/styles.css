@@ -198,8 +198,31 @@ nav {
     margin-bottom: 0.5rem;
 }
 
-.person-card.center .person-name {
+.person-name-english {
+    font-size: 1.1rem;
+    font-weight: 500;
+    color: var(--text-primary);
+    margin-bottom: 0.25rem;
+}
+
+.person-name-amharic {
+    font-size: 0.95rem;
+    font-weight: 400;
+    color: var(--text-secondary);
+    font-style: italic;
+    margin-bottom: 0.5rem;
+    direction: rtl; /* Amharic is RTL */
+    unicode-bidi: bidi-override;
+}
+
+.person-card.center .person-name-english {
     color: white;
+    font-size: 1.2rem;
+}
+
+.person-card.center .person-name-amharic {
+    color: rgba(255, 255, 255, 0.9);
+    font-size: 1rem;
 }
 
 .parent-label {

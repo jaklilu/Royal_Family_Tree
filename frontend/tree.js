@@ -100,10 +100,19 @@ function createPersonCard(person, type, parentType = null) {
     card.className = `person-card ${type}`;
     card.dataset.personId = person.id;
     
-    const name = document.createElement('div');
-    name.className = 'person-name';
-    name.textContent = person.name;
-    card.appendChild(name);
+    // English name (top)
+    const nameEnglish = document.createElement('div');
+    nameEnglish.className = 'person-name person-name-english';
+    nameEnglish.textContent = person.name;
+    card.appendChild(nameEnglish);
+    
+    // Amharic name (bottom, if available)
+    if (person.name_amharic) {
+        const nameAmharic = document.createElement('div');
+        nameAmharic.className = 'person-name person-name-amharic';
+        nameAmharic.textContent = person.name_amharic;
+        card.appendChild(nameAmharic);
+    }
     
     if (parentType) {
         const label = document.createElement('div');

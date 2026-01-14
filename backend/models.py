@@ -12,7 +12,8 @@ class Person(db.Model):
     __tablename__ = 'people'
     
     id = Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
-    name_original = Column(Text, nullable=False)
+    name_original = Column(Text, nullable=False)  # English name
+    name_amharic = Column(Text, nullable=True)  # Amharic name (optional)
     name_normalized = Column(Text, nullable=False, index=True)
     layer = Column(String(50), default='base', nullable=False)
     birth_year = Column(Integer, nullable=True)
@@ -27,7 +28,8 @@ class Person(db.Model):
     def to_dict(self):
         return {
             'id': str(self.id),
-            'name': self.name_original
+            'name': self.name_original,  # English name
+            'name_amharic': self.name_amharic if self.name_amharic else None
         }
     
     def __repr__(self):

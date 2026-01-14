@@ -429,6 +429,9 @@ def import_people():
                     rejected.append({'row': idx, 'reason': 'Empty name_original'})
                     continue
                 
+                # Amharic name (optional)
+                name_amharic = person_data.get('name_amharic', '').strip() or None
+                
                 person_id = None
                 if 'id' in person_data and person_data['id']:
                     if not validate_uuid(person_data['id']):
@@ -443,6 +446,7 @@ def import_people():
                     person = Person.query.get(person_id)
                     if person:
                         person.name_original = name_original
+                        person.name_amharic = name_amharic
                         person.name_normalized = name_normalized
                         person.layer = person_data.get('layer', 'base')
                         if 'birth_year' in person_data:
@@ -456,6 +460,7 @@ def import_people():
                         person = Person(
                             id=person_id,
                             name_original=name_original,
+                            name_amharic=name_amharic,
                             name_normalized=name_normalized,
                             layer=person_data.get('layer', 'base'),
                             birth_year=person_data.get('birth_year'),
@@ -467,6 +472,7 @@ def import_people():
                 else:
                     person = Person(
                         name_original=name_original,
+                        name_amharic=name_amharic,
                         name_normalized=name_normalized,
                         layer=person_data.get('layer', 'base'),
                         birth_year=person_data.get('birth_year'),
