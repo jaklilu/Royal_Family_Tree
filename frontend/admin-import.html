@@ -1,0 +1,223 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Import - Royal Family Tree</title>
+    <link rel="stylesheet" href="styles.css">
+    <style>
+        .admin-container {
+            max-width: 1000px;
+            margin: 2rem auto;
+            padding: 2rem;
+        }
+        .config-section, .upload-section {
+            background: var(--card-background);
+            border-radius: 0.75rem;
+            padding: 2rem;
+            margin-bottom: 2rem;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+        }
+        .file-input-wrapper {
+            border: 2px dashed var(--border-color);
+            border-radius: 0.5rem;
+            padding: 2rem;
+            text-align: center;
+            margin: 1rem 0;
+            transition: border-color 0.2s;
+        }
+        .file-input-wrapper:hover, .file-input-wrapper.dragover {
+            border-color: var(--accent-color);
+            background: #f0f7ff;
+        }
+        input[type="file"] {
+            display: none;
+        }
+        .file-label {
+            display: inline-block;
+            padding: 0.75rem 1.5rem;
+            background: var(--accent-color);
+            color: white;
+            border-radius: 0.5rem;
+            cursor: pointer;
+            font-weight: 500;
+        }
+        .file-label:hover {
+            background: #2c5aa0;
+        }
+        .file-info {
+            margin-top: 1rem;
+            padding: 1rem;
+            background: var(--background);
+            border-radius: 0.5rem;
+        }
+        .config-input {
+            width: 100%;
+            padding: 0.75rem;
+            border: 2px solid var(--border-color);
+            border-radius: 0.5rem;
+            font-size: 1rem;
+            margin: 0.5rem 0;
+        }
+        .btn-import {
+            width: 100%;
+            padding: 1rem;
+            background: var(--success-color);
+            color: white;
+            border: none;
+            border-radius: 0.5rem;
+            font-size: 1.1rem;
+            font-weight: 600;
+            cursor: pointer;
+            margin-top: 1rem;
+        }
+        .btn-import:hover:not(:disabled) {
+            background: #2f855a;
+        }
+        .btn-import:disabled {
+            background: var(--text-secondary);
+            cursor: not-allowed;
+        }
+        .progress-section {
+            margin-top: 2rem;
+            display: none;
+        }
+        .progress-bar {
+            width: 100%;
+            height: 30px;
+            background: var(--border-color);
+            border-radius: 0.5rem;
+            overflow: hidden;
+            margin: 1rem 0;
+        }
+        .progress-fill {
+            height: 100%;
+            background: var(--accent-color);
+            width: 0%;
+            transition: width 0.3s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: 500;
+        }
+        .log-section {
+            max-height: 400px;
+            overflow-y: auto;
+            background: #1a202c;
+            color: #e2e8f0;
+            padding: 1rem;
+            border-radius: 0.5rem;
+            font-family: 'Courier New', monospace;
+            font-size: 0.9rem;
+            margin-top: 1rem;
+        }
+        .log-entry {
+            margin: 0.25rem 0;
+        }
+        .log-entry.success { color: #68d391; }
+        .log-entry.error { color: #fc8181; }
+        .log-entry.warning { color: #f6e05e; }
+        .log-entry.info { color: #63b3ed; }
+        .stats {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 1rem;
+            margin-top: 1rem;
+        }
+        .stat-card {
+            background: var(--card-background);
+            padding: 1rem;
+            border-radius: 0.5rem;
+            text-align: center;
+        }
+        .stat-value {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: var(--accent-color);
+        }
+        .stat-label {
+            color: var(--text-secondary);
+            font-size: 0.9rem;
+            margin-top: 0.25rem;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>Royal Family Tree - Admin Import</h1>
+            <nav>
+                <a href="index.html" class="nav-btn">← Back to Tree View</a>
+            </nav>
+        </header>
+
+        <div class="admin-container">
+            <!-- Configuration -->
+            <div class="config-section">
+                <h2>Configuration</h2>
+                <label>
+                    Backend URL:
+                    <input type="text" id="backend-url" class="config-input" 
+                           placeholder="https://your-backend.onrender.com">
+                </label>
+                <label>
+                    Admin Token:
+                    <input type="password" id="admin-token" class="config-input" 
+                           placeholder="Enter your admin token">
+                </label>
+            </div>
+
+            <!-- Upload Section -->
+            <div class="upload-section">
+                <h2>Import CSV File</h2>
+                <p><strong>Format:</strong> english_name, amharic_name, english_parent_name, amharic_parent_name</p>
+                
+                <div class="file-input-wrapper" id="dropzone">
+                    <input type="file" id="csv-file" accept=".csv" />
+                    <label for="csv-file" class="file-label">Choose CSV File</label>
+                    <p>or drag and drop here</p>
+                </div>
+                
+                <div id="file-info" class="file-info" style="display: none;">
+                    <strong>File:</strong> <span id="file-name"></span><br>
+                    <strong>Rows:</strong> <span id="row-count">0</span>
+                </div>
+            </div>
+
+            <!-- Import Button -->
+            <button id="import-btn" class="btn-import" disabled>Start Import</button>
+
+            <!-- Progress Section -->
+            <div class="progress-section" id="progress-section">
+                <h3>Import Progress</h3>
+                <div class="progress-bar">
+                    <div class="progress-fill" id="progress-fill">0%</div>
+                </div>
+                <div class="stats">
+                    <div class="stat-card">
+                        <div class="stat-value" id="stat-created">0</div>
+                        <div class="stat-label">Created</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-value" id="stat-updated">0</div>
+                        <div class="stat-label">Updated</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-value" id="stat-relationships">0</div>
+                        <div class="stat-label">Relationships</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-value" id="stat-rejected">0</div>
+                        <div class="stat-label">Rejected</div>
+                    </div>
+                </div>
+                <div class="log-section" id="log-section"></div>
+            </div>
+        </div>
+    </div>
+
+    <script src="admin-import.js"></script>
+</body>
+</html>
+
