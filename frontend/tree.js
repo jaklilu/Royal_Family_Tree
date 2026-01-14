@@ -210,17 +210,7 @@ function drawConnectingLines() {
             centerToBus.setAttribute('stroke-width', '2');
             svg.appendChild(centerToBus);
             
-            // Vertical drops from bus to each child
-            childPositions.forEach(pos => {
-                const dropLine = document.createElementNS('http://www.w3.org/2000/svg', 'line');
-                dropLine.setAttribute('x1', pos.x);
-                dropLine.setAttribute('y1', busY);
-                dropLine.setAttribute('x2', pos.x);
-                dropLine.setAttribute('y2', pos.y);
-                dropLine.setAttribute('stroke', '#4a5568');
-                dropLine.setAttribute('stroke-width', '2');
-                svg.appendChild(dropLine);
-            });
+            // No vertical drops - only horizontal bus line connects to children
         }
     }
     
