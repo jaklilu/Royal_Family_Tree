@@ -308,12 +308,14 @@ nav {
         justify-items: center;
     }
     
-    /* Override width for specific child counts on tablets too */
+    /* Override width and grid columns for specific child counts on tablets too */
     .children-section.children-1 {
+        grid-template-columns: 200px !important;
         width: 200px !important;
     }
     
     .children-section.children-2 {
+        grid-template-columns: repeat(2, 200px) !important;
         width: calc(2 * 200px + 1 * 1rem) !important;
     }
 }
@@ -336,19 +338,22 @@ nav {
         box-sizing: border-box !important;
     }
     
-    /* Dynamic width based on number of children - must be more specific */
+    /* Dynamic width AND grid columns based on number of children - must be more specific */
     .section.children-section.children-1,
     .children-section.children-1 {
+        grid-template-columns: 200px !important; /* 1 column for 1 card */
         width: 200px !important; /* 1 card */
     }
     
     .section.children-section.children-2,
     .children-section.children-2 {
+        grid-template-columns: repeat(2, 200px) !important; /* 2 columns for 2 cards */
         width: calc(2 * 200px + 1 * 1rem) !important; /* 2 cards + 1 gap = 431px */
     }
     
     .section.children-section.children-3,
     .children-section.children-3 {
+        grid-template-columns: repeat(3, 200px) !important; /* 3 columns for 3 cards */
         width: calc(3 * 200px + 2 * 1rem) !important; /* 3 cards + 2 gaps = 632px */
     }
     
@@ -356,6 +361,7 @@ nav {
     .section.children-section.children-many,
     .children-section.children-4,
     .children-section.children-many {
+        grid-template-columns: repeat(4, 200px) !important; /* 4 columns for 4+ cards */
         width: calc(4 * 200px + 3 * 1rem) !important; /* 4 cards + 3 gaps = 863px */
     }
 }
