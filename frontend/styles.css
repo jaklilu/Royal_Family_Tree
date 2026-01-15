@@ -165,6 +165,12 @@ nav {
     margin: 1rem 0;
 }
 
+/* Override section margin for children-section to ensure centering */
+.section.children-section {
+    margin-left: auto !important;
+    margin-right: auto !important;
+}
+
 .parent-section {
     display: flex;
     justify-content: center;
@@ -310,15 +316,20 @@ nav {
 }
 
 @media (min-width: 1024px) {
+    .section.children-section,
     .children-section {
-        display: grid;
-        grid-template-columns: repeat(4, 1fr); /* 4 columns on desktop */
+        display: grid !important;
+        grid-template-columns: repeat(4, 1fr) !important; /* 4 columns on desktop */
         gap: 1rem;
-        width: fit-content; /* Only take width needed */
-        max-width: calc(4 * 200px + 3 * 1rem); /* Max width for 4 cards + gaps */
-        margin: 0 auto !important; /* Center the grid container */
-        justify-items: center; /* Center items in grid cells */
+        width: fit-content !important; /* Only take width needed */
+        max-width: calc(4 * 200px + 3 * 1rem) !important; /* Max width for 4 cards + gaps */
+        margin-left: auto !important;
+        margin-right: auto !important;
+        margin-top: 1rem !important;
+        margin-bottom: 1rem !important;
+        justify-items: center !important; /* Center items in grid cells */
         padding: 0.5rem;
+        box-sizing: border-box;
     }
 }
 
