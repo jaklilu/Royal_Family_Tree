@@ -315,13 +315,14 @@ nav {
         display: grid !important;
         grid-template-columns: repeat(4, 200px) !important; /* 4 columns, fixed 200px width */
         gap: 1rem !important;
-        width: calc(4 * 200px + 3 * 1rem) !important; /* Fixed width: 4 cards + 3 gaps = 863px */
-        max-width: calc(4 * 200px + 3 * 1rem) !important;
+        width: fit-content !important; /* Fit content width, not fixed */
+        max-width: calc(4 * 200px + 3 * 1rem) !important; /* Max width: 4 cards + 3 gaps = 863px */
         margin-left: auto !important;
         margin-right: auto !important;
         margin-top: 1rem !important;
         margin-bottom: 1rem !important;
         justify-items: center !important;
+        justify-content: center !important; /* Center grid tracks when fewer than 4 children */
         padding: 0.5rem !important;
         box-sizing: border-box !important;
     }
