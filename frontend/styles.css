@@ -449,27 +449,41 @@ nav {
     font-weight: 500;
 }
 
-/* Mobile Responsive */
-@media (max-width: 640px) {
+/* Additional mobile adjustments (base is already mobile-first) */
+@media (min-width: 480px) {
     header h1 {
-        font-size: 1.5rem;
+        font-size: 2rem;
     }
-
+    
     .person-card {
-        min-width: 150px;
+        padding: 1.5rem;
+    }
+    
+    .container {
         padding: 1rem;
     }
+}
 
+@media (min-width: 768px) {
+    header h1 {
+        font-size: 2.5rem;
+    }
+    
     .tree-container {
-        padding: 1rem 0.5rem;
+        padding: 2rem 1rem;
+        min-height: 600px;
     }
-
-    .children-section {
-        gap: 0.75rem;
+    
+    .section {
+        margin: 2rem 0;
     }
-
+    
+    .center-section {
+        margin: 3rem 0;
+    }
+    
     .relationship-container {
-        padding: 1rem;
+        padding: 2rem;
     }
 }
 
