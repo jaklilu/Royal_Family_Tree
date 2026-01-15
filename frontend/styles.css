@@ -312,12 +312,9 @@ nav {
         display: grid;
         grid-template-columns: repeat(4, 1fr); /* 4 columns on desktop */
         gap: 1rem;
-        width: 100%;
+        width: fit-content; /* Only take width needed */
         max-width: calc(4 * 200px + 3 * 1rem); /* Max width for 4 cards + gaps */
-        margin-left: 100px !important; /* Force 100px left offset */
-        margin-right: auto;
-        margin-top: 0;
-        margin-bottom: 0;
+        margin: 0 auto !important; /* Center the grid container */
         justify-items: center; /* Center items in grid cells */
         padding: 0.5rem;
     }
