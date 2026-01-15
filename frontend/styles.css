@@ -182,6 +182,7 @@ nav {
     grid-template-columns: repeat(2, 1fr); /* Mobile: 2 columns */
     gap: 0.75rem;
     min-height: 200px;
+    width: 100%;
     margin: 0 auto;
     justify-items: center;
     padding: 0.5rem;
@@ -302,25 +303,20 @@ nav {
     .children-section {
         grid-template-columns: repeat(3, 1fr); /* 3 columns on tablets */
         gap: 1rem;
+        width: 100%;
     }
 }
 
 @media (min-width: 1024px) {
     .children-section {
-        display: flex;
-        flex-wrap: wrap;
-        justify-content: center;
+        display: grid;
+        grid-template-columns: repeat(4, 1fr); /* 4 columns on desktop */
         gap: 1rem;
         width: 100%;
-        max-width: calc(4 * 200px + 3 * 1rem); /* Max width for 4 cards */
-        margin-left: auto;
-        margin-right: auto;
+        max-width: calc(4 * 200px + 3 * 1rem); /* Max width for 4 cards + gaps */
+        margin: 0 auto; /* Center the grid */
+        justify-items: center; /* Center items in grid cells */
         padding: 0.5rem;
-    }
-    
-    .children-section .person-card {
-        flex: 0 0 200px; /* Fixed width, no grow/shrink */
-        max-width: 200px;
     }
 }
 
