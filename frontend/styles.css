@@ -183,9 +183,10 @@ nav {
     grid-template-columns: repeat(2, 1fr); /* Mobile: 2 columns */
     gap: 0.75rem;
     min-height: 200px;
-    width: 100%; /* Full width on mobile */
+    width: 100%;
     margin: 0 auto;
     justify-items: center;
+    justify-content: center;
     padding: 0.5rem;
 }
 
@@ -309,12 +310,13 @@ nav {
 
 @media (min-width: 1024px) {
     .children-section {
-        grid-template-columns: repeat(auto-fit, minmax(180px, 200px)); /* Auto-fit up to 4 columns */
+        grid-template-columns: repeat(4, 200px); /* Fixed 4 columns, fixed width */
         gap: 1rem;
+        width: fit-content; /* Only take width needed for 4 columns */
         max-width: calc(4 * 200px + 3 * 1rem); /* Limit width to 4 cards + gaps */
-        width: fit-content; /* Only take width needed */
         margin: 0 auto; /* Center the grid container */
         justify-content: center; /* Center grid items */
+        justify-items: center; /* Center items within grid cells */
     }
 }
 
