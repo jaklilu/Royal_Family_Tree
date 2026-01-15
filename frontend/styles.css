@@ -188,6 +188,13 @@ nav {
     padding: 0.5rem;
 }
 
+/* Mobile: Center single child */
+.children-section.children-1 {
+    grid-template-columns: 200px !important; /* 1 column for 1 card */
+    width: 200px !important; /* Fit single card */
+    max-width: 200px !important;
+}
+
 /* Person Cards - Uniform sizing for all card types */
 .person-card {
     background: var(--card-background);
@@ -296,6 +303,13 @@ nav {
     .children-section {
         grid-template-columns: repeat(2, 1fr); /* Still 2 columns on small tablets */
         gap: 1rem;
+    }
+    
+    /* Small tablets: Center single child */
+    .children-section.children-1 {
+        grid-template-columns: 200px !important;
+        width: 200px !important;
+        max-width: 200px !important;
     }
 }
 
