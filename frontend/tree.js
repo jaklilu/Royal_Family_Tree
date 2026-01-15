@@ -75,6 +75,9 @@ function renderPerson(person) {
 function renderChildren(children, isLeaf) {
     const section = document.getElementById('children-section');
     
+    // Remove any existing child count classes
+    section.classList.remove('children-1', 'children-2', 'children-3', 'children-4', 'children-many');
+    
     if (children.length === 0) {
         const emptyMsg = document.createElement('div');
         emptyMsg.className = 'empty-message';
@@ -85,6 +88,13 @@ function renderChildren(children, isLeaf) {
         }
         section.appendChild(emptyMsg);
         return;
+    }
+    
+    // Add class based on number of children for dynamic width calculation
+    if (children.length <= 4) {
+        section.classList.add(`children-${children.length}`);
+    } else {
+        section.classList.add('children-many');
     }
     
     children.forEach(child => {
