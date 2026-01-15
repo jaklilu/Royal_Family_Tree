@@ -293,25 +293,29 @@ nav {
     font-weight: 500;
 }
 
-/* Responsive Grid for Children - Mobile-first approach */
+/* Responsive layout for Children - Max 4 per row, always centered */
 @media (min-width: 480px) {
     .children-section {
-        grid-template-columns: repeat(2, 1fr);
         gap: 1rem;
+    }
+    
+    .person-card {
+        flex: 0 0 calc(50% - 0.5rem); /* 2 columns */
+        max-width: 200px;
     }
 }
 
 @media (min-width: 768px) {
-    .children-section {
-        grid-template-columns: repeat(3, 1fr);
-        gap: 1rem;
+    .person-card {
+        flex: 0 0 calc(33.333% - 0.67rem); /* 3 columns */
+        max-width: 200px;
     }
 }
 
 @media (min-width: 1024px) {
-    .children-section {
-        grid-template-columns: repeat(4, 1fr);
-        gap: 1rem;
+    .person-card {
+        flex: 0 0 calc(25% - 0.75rem); /* 4 columns */
+        max-width: 200px;
     }
 }
 
