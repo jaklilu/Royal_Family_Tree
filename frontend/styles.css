@@ -307,6 +307,15 @@ nav {
         margin: 0 auto;
         justify-items: center;
     }
+    
+    /* Override width for specific child counts on tablets too */
+    .children-section.children-1 {
+        width: 200px !important;
+    }
+    
+    .children-section.children-2 {
+        width: calc(2 * 200px + 1 * 1rem) !important;
+    }
 }
 
 @media (min-width: 1024px) {
