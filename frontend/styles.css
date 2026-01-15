@@ -178,14 +178,14 @@ nav {
 }
 
 .children-section {
-    display: grid;
-    grid-template-columns: repeat(2, 1fr); /* Mobile-first: 2 columns */
+    display: flex;
+    flex-wrap: wrap;
     gap: 0.75rem;
     min-height: 200px;
     max-width: 100%;
     margin: 0 auto;
-    justify-items: center;
     justify-content: center;
+    align-items: flex-start;
     padding: 0.5rem;
 }
 
@@ -197,6 +197,7 @@ nav {
     padding: 1.25rem;
     width: 100%;
     max-width: 200px;
+    min-width: 180px;
     text-align: center;
     cursor: pointer;
     transition: all 0.3s;
@@ -206,6 +207,7 @@ nav {
     flex-direction: column;
     justify-content: center;
     min-height: 120px;
+    margin: 0 auto; /* Center cards within their container */
 }
 
 .person-card:hover {
