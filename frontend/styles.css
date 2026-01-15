@@ -314,7 +314,10 @@ nav {
         gap: 1rem;
         width: 100%;
         max-width: calc(4 * 200px + 3 * 1rem); /* Max width for 4 cards + gaps */
-        margin: 0 auto 0 100px; /* Center with 100px left offset */
+        margin-left: 100px !important; /* Force 100px left offset */
+        margin-right: auto;
+        margin-top: 0;
+        margin-bottom: 0;
         justify-items: center; /* Center items in grid cells */
         padding: 0.5rem;
     }
