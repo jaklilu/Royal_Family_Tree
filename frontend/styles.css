@@ -319,17 +319,18 @@ nav {
     .section.children-section,
     .children-section {
         display: grid !important;
-        grid-template-columns: repeat(4, 1fr) !important; /* 4 columns on desktop */
+        grid-template-columns: repeat(4, 200px) !important; /* 4 columns, fixed 200px width */
         gap: 1rem;
-        width: fit-content !important; /* Only take width needed */
-        max-width: calc(4 * 200px + 3 * 1rem) !important; /* Max width for 4 cards + gaps */
+        width: calc(4 * 200px + 3 * 1rem) !important; /* Exact width: 4 cards + 3 gaps */
+        max-width: calc(4 * 200px + 3 * 1rem) !important;
         margin-left: auto !important;
         margin-right: auto !important;
         margin-top: 1rem !important;
         margin-bottom: 1rem !important;
         justify-items: center !important; /* Center items in grid cells */
-        padding: 0.5rem;
-        box-sizing: border-box;
+        justify-content: center !important; /* Center grid tracks */
+        padding: 0.5rem !important;
+        box-sizing: border-box !important;
     }
 }
 
