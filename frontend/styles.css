@@ -304,7 +304,8 @@ nav {
         grid-template-columns: repeat(3, 1fr); /* 3 columns on tablets */
         gap: 1rem;
         width: 100%;
-        margin: 0 auto !important; /* Ensure centering */
+        margin: 0 auto !important; /* Ensure centering for all generations */
+        justify-items: center;
     }
 }
 
