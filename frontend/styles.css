@@ -140,8 +140,13 @@ nav {
 /* Tree Container */
 .tree-container {
     position: relative;
+    background: rgba(255, 255, 255, 0.95);
+    backdrop-filter: blur(10px);
+    border-radius: 1.5rem;
     min-height: 600px;
     padding: 2rem 1rem;
+    box-shadow: var(--shadow-md);
+    border: 1px solid var(--border-color);
 }
 
 .tree-lines {
