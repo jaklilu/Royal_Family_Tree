@@ -798,6 +798,69 @@ def import_people_batch(people_data):
     }
 
 
+@admin_bp.route('/delete/person', methods=['POST'])
+def delete_person():
+    """Delete a person and their relationships (admin only)"""
+    auth_error = check_admin_token()
+    if auth_error:
+        return auth_error
+    
+    try:
+        data = request.get_json()
+        person_id = data.get('person_id')
+        person_name = data.get('person_name')  # Alternative: search by name
+        
+        if not person_id and not person_name:
+            return get_error_response('BAD_REQUEST', 'Either person_id or person_name is required')
+        
+        # Find the person
+        if person_id:
+            if not validate_uuid(person_id):
+                return get_error_response('BAD_REQUEST', 'Invalid person ID format')
+            person = Person.query.get(uuid.UUID(person_id))
+        else:
+            # Search by name (exact match)
+            name_normalized = normalize_name(person_name)
+            persons = Person.query.filter_by(name_normalized=name_normalized, layer='base').all()
+            if len(persons) > 1:
+                # Multiple matches - return them for user to choose
+                return jsonify({
+                    'matches': [{'id': str(p.id), 'name': p.name_original, 'name_amharic': p.name_amharic} for p in persons],
+                    'message': 'Multiple people found with this name. Please specify person_id.'
+                }), 200
+            elif len(persons) == 0:
+                return get_error_response('NOT_FOUND', 'Person not found')
+            person = persons[0]
+        
+        if not person:
+            return get_error_response('NOT_FOUND', 'Person not found')
+        
+        # Get all relationships involving this person
+        parent_rels = Relationship.query.filter_by(parent_id=person.id).all()
+        child_rels = Relationship.query.filter_by(child_id=person.id).all()
+        
+        # Delete relationships
+        for rel in parent_rels:
+            db.session.delete(rel)
+        for rel in child_rels:
+            db.session.delete(rel)
+        
+        # Delete the person
+        db.session.delete(person)
+        db.session.commit()
+        
+        return jsonify({
+            'success': True,
+            'message': f'Deleted person: {person.name_original}',
+            'deleted_relationships': len(parent_rels) + len(child_rels)
+        })
+    
+    except Exception as e:
+        db.session.rollback()
+        logger.error(f'Error deleting person: {e}', exc_info=True)
+        return get_error_response('SERVER_ERROR', f'Delete failed: {str(e)}', 500)
+
+
 @admin_bp.route('/import/relationships', methods=['POST'])
 def import_relationships():
     """Import relationships (admin only)"""
