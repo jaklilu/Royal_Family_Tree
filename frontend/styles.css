@@ -188,8 +188,8 @@ nav {
     grid-template-columns: repeat(2, 1fr); /* Mobile: 2 columns */
     gap: 0.75rem;
     min-height: 200px;
-    width: 100%;
-    margin: 0 auto !important; /* Ensure centering for all generations */
+    width: 100%; /* Full width for mobile */
+    margin: 0 auto;
     justify-items: center;
     padding: 0.5rem;
 }
@@ -309,8 +309,8 @@ nav {
     .children-section {
         grid-template-columns: repeat(3, 1fr); /* 3 columns on tablets */
         gap: 1rem;
-        width: 100%;
-        margin: 0 auto !important; /* Ensure centering for all generations */
+        width: 100%; /* Full width for tablets */
+        margin: 0 auto;
         justify-items: center;
     }
 }
@@ -320,15 +320,14 @@ nav {
     .children-section {
         display: grid !important;
         grid-template-columns: repeat(4, 200px) !important; /* 4 columns, fixed 200px width */
-        gap: 1rem;
-        width: calc(4 * 200px + 3 * 1rem) !important; /* Exact width: 4 cards + 3 gaps */
+        gap: 1rem !important;
+        width: calc(4 * 200px + 3 * 1rem) !important; /* Fixed width: 4 cards + 3 gaps = 863px */
         max-width: calc(4 * 200px + 3 * 1rem) !important;
         margin-left: auto !important;
         margin-right: auto !important;
         margin-top: 1rem !important;
         margin-bottom: 1rem !important;
-        justify-items: center !important; /* Center items in grid cells */
-        justify-content: center !important; /* Center grid tracks */
+        justify-items: center !important;
         padding: 0.5rem !important;
         box-sizing: border-box !important;
     }
