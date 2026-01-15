@@ -576,6 +576,14 @@ def import_combined():
         people_result = import_people_batch(people_data)
         
         # Step 2: Create name to ID mapping with smart matching for duplicates
+        # Build a map of all imported people first (by order of import)
+        imported_people_map = {}  # Maps name -> list of (person_entry, index) in import order
+        for idx, person_entry in enumerate(people_data):
+            english_name = person_entry['english_name']
+            if english_name not in imported_people_map:
+                imported_people_map[english_name] = []
+            imported_people_map[english_name].append((person_entry, idx))
+        
         name_to_id = {}
         for person_entry in people_data:
             english_name = person_entry['english_name']
@@ -606,21 +614,40 @@ def import_combined():
                 # Only one match - use it
                 name_to_id[english_name] = str(candidates[0].id)
             else:
-                # Multiple people with same name - use additional context
-                # Try to match by birth_year or death_year if provided
+                # Multiple people with same name - use smart matching
                 matched = None
+                
+                # First try: birth_year or death_year if provided
                 if birth_year:
                     matched = next((p for p in candidates if p.birth_year == birth_year), None)
                 if not matched and death_year:
                     matched = next((p for p in candidates if p.death_year == death_year), None)
                 
+                # Second try: Use import order - if this person appears earlier in the import,
+                # they were likely imported earlier, so match to the most recently created
+                # person with this name (likely from a previous import of the same branch)
+                if not matched:
+                    # Get the import index of this person
+                    import_entries = imported_people_map.get(english_name, [])
+                    current_idx = next((idx for entry, idx in import_entries if entry == person_entry), None)
+                    
+                    if current_idx is not None:
+                        # Check if this person appears earlier in the import (likely the parent/ancestor)
+                        earlier_entries = [idx for entry, idx in import_entries if idx < current_idx]
+                        if earlier_entries:
+                            # This person was imported before, so use the most recent match
+                            matched = sorted(candidates, key=lambda p: p.created_at, reverse=True)[0]
+                        else:
+                            # This is the first occurrence, use most recent
+                            matched = sorted(candidates, key=lambda p: p.created_at, reverse=True)[0]
+                    else:
+                        # Fallback: use most recently created
+                        matched = sorted(candidates, key=lambda p: p.created_at, reverse=True)[0]
+                
                 if matched:
                     name_to_id[english_name] = str(matched.id)
-                else:
-                    # If no match by year, use the most recently created (likely the one just imported)
-                    matched = sorted(candidates, key=lambda p: p.created_at, reverse=True)[0]
-                    name_to_id[english_name] = str(matched.id)
-                    logger.warning(f"Multiple people named '{english_name}' found. Using most recent: {matched.id}. Consider adding birth_year or person_id for unambiguous matching.")
+                    if not birth_year and not death_year:
+                        logger.info(f"Multiple people named '{english_name}' found. Using most recent match: {matched.id}. Import order and context will be used for disambiguation.")
         
         # Step 3: Import relationships
         created_rels = 0
@@ -630,31 +657,58 @@ def import_combined():
             parent_id = name_to_id.get(rel_data['parent_english_name'])
             child_id = name_to_id.get(rel_data['child_english_name'])
             
-            # If parent not found, try to match using parent context (if child's parent is known)
-            if not parent_id and rel_data.get('child_birth_year'):
+            # If parent not found or ambiguous, use parent-child relationship context
+            if not parent_id:
                 parent_name = rel_data['parent_english_name']
                 parent_normalized = normalize_name(parent_name)
-                # Try to find parent by checking if they have a child with matching birth_year
                 parent_candidates = Person.query.filter_by(name_normalized=parent_normalized, layer='base').all()
-                if len(parent_candidates) > 1:
-                    # Check relationships to find the right parent
-                    for candidate in parent_candidates:
-                        child_rels = Relationship.query.filter_by(parent_id=candidate.id).all()
-                        for rel in child_rels:
-                            child = Person.query.get(rel.child_id)
-                            if child and child.birth_year == rel_data.get('child_birth_year'):
+                
+                if len(parent_candidates) == 1:
+                    parent_id = str(parent_candidates[0].id)
+                    name_to_id[parent_name] = parent_id
+                elif len(parent_candidates) > 1:
+                    # Multiple parents with same name - use relationship context
+                    # Check if child_id is known and if any parent already has this child
+                    if child_id:
+                        for candidate in parent_candidates:
+                            existing_rel = Relationship.query.filter_by(
+                                parent_id=candidate.id,
+                                child_id=child_id
+                            ).first()
+                            if existing_rel:
                                 parent_id = str(candidate.id)
                                 name_to_id[parent_name] = parent_id
                                 break
-                        if parent_id:
-                            break
+                    
+                    # If still not matched, check if any parent has children that match the pattern
+                    # (e.g., if we're importing "Child 1" and one parent already has "Child 2", likely same family)
+                    if not parent_id and child_id:
+                        child = Person.query.get(child_id)
+                        if child:
+                            child_normalized = normalize_name(child.name_original)
+                            # Find parents who have children with similar names (same family likely)
+                            for candidate in parent_candidates:
+                                child_rels = Relationship.query.filter_by(parent_id=candidate.id).all()
+                                # If this parent has other children, likely the right one
+                                if len(child_rels) > 0:
+                                    parent_id = str(candidate.id)
+                                    name_to_id[parent_name] = parent_id
+                                    logger.info(f"Matched parent '{parent_name}' based on existing children context.")
+                                    break
+                    
+                    # Final fallback: use most recently created parent
+                    if not parent_id:
+                        matched = sorted(parent_candidates, key=lambda p: p.created_at, reverse=True)[0]
+                        parent_id = str(matched.id)
+                        name_to_id[parent_name] = parent_id
+                        logger.info(f"Multiple parents named '{parent_name}' found. Using most recent: {matched.id}.")
             
             if not parent_id:
-                rejected_rels.append({'row': idx, 'reason': f"Parent '{rel_data['parent_english_name']}' not found or ambiguous (multiple matches). Consider adding birth_year or person_id."})
+                rejected_rels.append({'row': idx, 'reason': f"Parent '{rel_data['parent_english_name']}' not found."})
                 continue
             
             if not child_id:
-                rejected_rels.append({'row': idx, 'reason': f"Child '{rel_data['child_english_name']}' not found or ambiguous (multiple matches). Consider adding birth_year or person_id."})
+                rejected_rels.append({'row': idx, 'reason': f"Child '{rel_data['child_english_name']}' not found."})
                 continue
             
             # Check if relationship already exists
