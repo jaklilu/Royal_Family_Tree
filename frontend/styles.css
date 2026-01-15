@@ -178,14 +178,13 @@ nav {
 }
 
 .children-section {
-    display: flex;
-    flex-wrap: wrap;
+    display: grid;
+    grid-template-columns: repeat(2, 1fr); /* Mobile: 2 columns */
     gap: 0.75rem;
     min-height: 200px;
     max-width: 100%;
     margin: 0 auto;
-    justify-content: center;
-    align-items: flex-start;
+    justify-items: center;
     padding: 0.5rem;
 }
 
@@ -197,7 +196,6 @@ nav {
     padding: 1.25rem;
     width: 100%;
     max-width: 200px;
-    min-width: 180px;
     text-align: center;
     cursor: pointer;
     transition: all 0.3s;
@@ -207,7 +205,7 @@ nav {
     flex-direction: column;
     justify-content: center;
     min-height: 120px;
-    margin: 0 auto; /* Center cards within their container */
+    justify-self: center; /* Center within grid cell */
 }
 
 .person-card:hover {
@@ -293,29 +291,26 @@ nav {
     font-weight: 500;
 }
 
-/* Responsive layout for Children - Max 4 per row, always centered */
+/* Responsive Grid for Children - Max 4 per row, always centered */
 @media (min-width: 480px) {
     .children-section {
+        grid-template-columns: repeat(2, 1fr); /* Still 2 columns on small tablets */
         gap: 1rem;
-    }
-    
-    .person-card {
-        flex: 0 0 calc(50% - 0.5rem); /* 2 columns */
-        max-width: 200px;
     }
 }
 
 @media (min-width: 768px) {
-    .person-card {
-        flex: 0 0 calc(33.333% - 0.67rem); /* 3 columns */
-        max-width: 200px;
+    .children-section {
+        grid-template-columns: repeat(3, 1fr); /* 3 columns on tablets */
+        gap: 1rem;
     }
 }
 
 @media (min-width: 1024px) {
-    .person-card {
-        flex: 0 0 calc(25% - 0.75rem); /* 4 columns */
-        max-width: 200px;
+    .children-section {
+        grid-template-columns: repeat(4, 1fr); /* 4 columns on desktop */
+        gap: 1rem;
+        max-width: calc(4 * 200px + 3 * 1rem); /* Limit width to 4 cards + gaps */
     }
 }
 
