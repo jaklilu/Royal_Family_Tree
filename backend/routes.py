@@ -175,8 +175,9 @@ def get_neighborhood(person_id):
             visibility='public'
         ).options(joinedload(Relationship.child)).all()
         
-        children = [rel.child for rel in child_rels]
-        children = sorted(children, key=lambda p: p.name_normalized)
+        # Preserve import order by sorting by relationship created_at (matches CSV import order)
+        children = sorted(child_rels, key=lambda rel: rel.created_at)
+        children = [rel.child for rel in children]
         
         response = {
             'parent': parent.to_dict() if parent else None,
@@ -227,7 +228,9 @@ def get_person(person_id):
             visibility='public'
         ).options(joinedload(Relationship.child)).all()
         
-        children = sorted([rel.child for rel in child_rels], key=lambda p: p.name_normalized)
+        # Preserve import order by sorting by relationship created_at (matches CSV import order)
+        children = sorted(child_rels, key=lambda rel: rel.created_at)
+        children = [rel.child for rel in children]
         
         return jsonify({
             'person': person.to_dict(),
