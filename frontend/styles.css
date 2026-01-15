@@ -165,12 +165,6 @@ nav {
     margin: 1rem 0;
 }
 
-/* Override section margin for children-section to ensure centering */
-.section.children-section {
-    margin-left: auto !important;
-    margin-right: auto !important;
-}
-
 .parent-section {
     display: flex;
     justify-content: center;
@@ -496,12 +490,6 @@ nav {
     
     .section {
         margin: 2rem 0;
-    }
-    
-    /* Ensure children-section centering is not overridden */
-    .section.children-section {
-        margin-left: auto !important;
-        margin-right: auto !important;
     }
     
     .center-section {
