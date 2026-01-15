@@ -307,14 +307,20 @@ nav {
 
 @media (min-width: 1024px) {
     .children-section {
-        grid-template-columns: repeat(4, 200px); /* Fixed 4 columns, fixed width */
+        display: flex;
+        flex-wrap: wrap;
+        justify-content: center;
         gap: 1rem;
-        width: calc(4 * 200px + 3 * 1rem); /* Exact width: 4 cards + 3 gaps */
-        max-width: calc(4 * 200px + 3 * 1rem);
-        margin-left: auto; /* Push to center */
-        margin-right: auto; /* Push to center */
-        justify-items: center; /* Center items within grid cells */
-        padding: 0.5rem 0; /* Remove side padding that might affect centering */
+        width: 100%;
+        max-width: calc(4 * 200px + 3 * 1rem); /* Max width for 4 cards */
+        margin-left: auto;
+        margin-right: auto;
+        padding: 0.5rem;
+    }
+    
+    .children-section .person-card {
+        flex: 0 0 200px; /* Fixed width, no grow/shrink */
+        max-width: 200px;
     }
 }
 
