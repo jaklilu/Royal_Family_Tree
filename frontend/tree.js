@@ -1,11 +1,29 @@
 let currentPersonId = null;
 let searchTimeouts = {};
 
+// Update page title with person's name
+function updatePageTitle(person) {
+    const titleElement = document.getElementById('page-title');
+    if (person) {
+        const personName = person.name || person.name_original || 'Royal Family Tree';
+        const titleText = `${personName} Family Tree`;
+        
+        // Update header title
+        if (titleElement) {
+            titleElement.textContent = titleText;
+        }
+        
+        // Update browser tab title
+        document.title = titleText;
+    }
+}
+
 // Initialize tree view
 async function initTreeView() {
     try {
         showLoading();
         const root = await api.getRoot();
+        updatePageTitle(root);
         await loadNeighborhood(root.id);
     } catch (error) {
         showError('Failed to load family tree: ' + error.message);
@@ -21,6 +39,9 @@ async function loadNeighborhood(personId) {
         currentPersonId = personId;
         
         const data = await api.getNeighborhood(personId);
+        
+        // Update page title with current person's name
+        updatePageTitle(data.person);
         
         // Clear previous content
         clearTree();
