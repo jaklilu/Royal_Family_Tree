@@ -182,9 +182,10 @@ nav {
     grid-template-columns: repeat(2, 1fr); /* Mobile: 2 columns */
     gap: 0.75rem;
     min-height: 200px;
-    max-width: 100%;
+    width: 100%;
     margin: 0 auto;
     justify-items: center;
+    justify-content: center;
     padding: 0.5rem;
 }
 
@@ -308,9 +309,11 @@ nav {
 
 @media (min-width: 1024px) {
     .children-section {
-        grid-template-columns: repeat(4, 1fr); /* 4 columns on desktop */
+        grid-template-columns: repeat(4, minmax(180px, 200px)); /* 4 columns on desktop, fixed width */
         gap: 1rem;
         max-width: calc(4 * 200px + 3 * 1rem); /* Limit width to 4 cards + gaps */
+        margin: 0 auto; /* Center the grid container */
+        justify-content: center; /* Center grid items when fewer than 4 */
     }
 }
 
