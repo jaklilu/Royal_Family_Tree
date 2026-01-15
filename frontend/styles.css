@@ -499,6 +499,12 @@ nav {
         margin: 2rem 0;
     }
     
+    /* Ensure children-section centering is not overridden */
+    .section.children-section {
+        margin-left: auto !important;
+        margin-right: auto !important;
+    }
+    
     .center-section {
         margin: 3rem 0;
     }
