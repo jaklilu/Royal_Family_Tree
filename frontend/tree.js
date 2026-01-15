@@ -93,8 +93,10 @@ function renderChildren(children, isLeaf) {
     // Add class based on number of children for dynamic width calculation
     if (children.length <= 4) {
         section.classList.add(`children-${children.length}`);
+        console.log(`Added class: children-${children.length} for ${children.length} children`);
     } else {
         section.classList.add('children-many');
+        console.log(`Added class: children-many for ${children.length} children`);
     }
     
     children.forEach(child => {
