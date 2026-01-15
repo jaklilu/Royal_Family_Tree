@@ -326,19 +326,24 @@ nav {
         box-sizing: border-box !important;
     }
     
-    /* Dynamic width based on number of children */
+    /* Dynamic width based on number of children - must be more specific */
+    .section.children-section.children-1,
     .children-section.children-1 {
         width: 200px !important; /* 1 card */
     }
     
+    .section.children-section.children-2,
     .children-section.children-2 {
         width: calc(2 * 200px + 1 * 1rem) !important; /* 2 cards + 1 gap = 431px */
     }
     
+    .section.children-section.children-3,
     .children-section.children-3 {
         width: calc(3 * 200px + 2 * 1rem) !important; /* 3 cards + 2 gaps = 632px */
     }
     
+    .section.children-section.children-4,
+    .section.children-section.children-many,
     .children-section.children-4,
     .children-section.children-many {
         width: calc(4 * 200px + 3 * 1rem) !important; /* 4 cards + 3 gaps = 863px */
