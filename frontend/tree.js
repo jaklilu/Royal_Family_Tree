@@ -175,15 +175,17 @@ function drawConnectingLines() {
         const centerY = centerRect.bottom - containerRect.top;
         
         if (childCards.length === 1) {
-            // Single child: direct line
+            // Single child: perfectly vertical line (use center card's X for both points)
             const childRect = childCards[0].getBoundingClientRect();
             const childX = childRect.left + childRect.width / 2 - containerRect.left;
             const childY = childRect.top - containerRect.top;
             
+            // Use center card's X position to ensure perfectly vertical line
+            // This ensures the line is straight even if child card is slightly off-center
             const line = document.createElementNS('http://www.w3.org/2000/svg', 'line');
             line.setAttribute('x1', centerX);
             line.setAttribute('y1', centerY);
-            line.setAttribute('x2', childX);
+            line.setAttribute('x2', centerX); // Use same X as center card for perfect vertical line
             line.setAttribute('y2', childY);
             line.setAttribute('stroke', '#4a5568');
             line.setAttribute('stroke-width', '2');
