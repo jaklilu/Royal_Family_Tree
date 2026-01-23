@@ -15,8 +15,8 @@
     --card-background-hover: linear-gradient(135deg, rgba(200, 170, 255, 0.98) 0%, rgba(220, 190, 255, 0.98) 50%, rgba(240, 210, 255, 0.98) 100%);
     --text-primary: #1a202c;
     --text-secondary: #4a5568;
-    --border-color: rgba(150, 130, 255, 0.4);
-    --border-color-hover: rgba(180, 150, 255, 0.7);
+    --border-color: rgba(102, 126, 234, 0.3);
+    --border-color-hover: rgba(102, 126, 234, 0.6);
     --error-color: #e53e3e;
     --success-color: #38a169;
     --spacing-unit: 1rem;
@@ -217,7 +217,7 @@ nav {
 
 .person-card:hover {
     transform: translateY(-4px) scale(1.02);
-    box-shadow: 0 8px 20px rgba(150, 100, 255, 0.4), var(--shadow-lg);
+    box-shadow: var(--shadow-lg);
     border-color: var(--border-color-hover);
     background: var(--card-background-hover);
 }
