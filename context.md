@@ -14,7 +14,7 @@ Royal_Family_Tree/
 │   ├── routes.py              # API endpoints (public + admin)
 │   ├── config.py              # Configuration management
 │   ├── requirements.txt       # Python dependencies
-│   ├── runtime.txt            # Python version pin (3.11.9)
+│   ├── runtime.txt            # Python version pin (3.11.9) - Render uses backend/runtime.txt
 │   ├── Procfile               # Render deployment config
 │   ├── setup.py               # Database initialization helper
 │   ├── ENV_VARIABLES.md       # Environment variables reference
@@ -37,8 +37,9 @@ Royal_Family_Tree/
 **Models:**
 - `Person` model with fields:
   - id (UUID, primary key)
-  - name_original (required)
-  - name_normalized (indexed for search)
+  - name_original (required, English name)
+  - name_amharic (optional, Amharic name)
+  - name_normalized (indexed for search, lowercase, trimmed)
   - layer (default 'base', prepared for Phase 2)
   - birth_year, death_year, gender (optional)
   - created_at timestamp
@@ -52,11 +53,21 @@ Royal_Family_Tree/
 - `GET /health` - Health check with database status
 - `GET /api/root` - Get root person (uses ROOT_PERSON_ID env var or oldest base person)
 - `GET /api/search?q=...` - Search people by name (max 25 results, ranked: exact > starts with > contains)
+  - Supports English name search (normalized matching)
+  - Supports Amharic name search (when query contains non-ASCII characters, uses ILIKE)
+  - Returns both `name` (English) and `name_amharic` in results
 - `GET /api/neighborhood/<person_id>` - 3-section view (parent, person, children)
   - Returns exactly ONE parent (prefers father > mother > any)
   - Includes `is_leaf` flag for Phase 2 attachment points
+  - Children sorted by import order (created_at) to preserve CSV import sequence
+  - Returns both `name` and `name_amharic` for all persons
 - `GET /api/person/<person_id>` - Full person details with all parents and children
+  - Returns all parents (father, mother, other) and all children
+  - Children sorted by import order (created_at)
+  - Returns both `name` and `name_amharic` for all persons
 - `GET /api/relationship?person1_id=...&person2_id=...` - Find shortest path using BFS
+  - Returns shortest path between two people
+  - Includes common ancestor if found
 
 **Admin Endpoints (Protected with X-ADMIN-TOKEN):**
 - `POST /admin/import/people` - Import/upsert people
@@ -69,6 +80,8 @@ Royal_Family_Tree/
 - Request logging
 - Cache headers for read-only API (5 minutes)
 - Database health checks
+- UTF-8 encoding support for Amharic names (JSON_AS_ASCII=False, charset=utf-8)
+- Smart duplicate name resolution using birth_year, death_year, and import context
 
 ### Frontend (Vanilla JavaScript)
 
@@ -159,9 +172,7 @@ Royal_Family_Tree/
 ### 📋 Pending/Next Steps
 - [x] **Deploy backend to Render** ✅ (Successfully deployed!)
 - [x] **Deploy frontend to Netlify** ✅ (User confirmed both are running!)
-- [ ] **CRITICAL:** Run database migration for `name_amharic` field:
-  - In Render: Web Service → Shell → `cd backend && flask db upgrade`
-  - Or manually: `ALTER TABLE people ADD COLUMN name_amharic TEXT;`
+- [x] **`name_amharic` field** ✅ (Implemented in models and routes, supports Amharic name storage and search)
 - [ ] Set environment variables in Render (if not already set):
   - `DATABASE_URL` (PostgreSQL connection string)
   - `SECRET_KEY` (random string)
@@ -246,7 +257,7 @@ The codebase is prepared for Phase 2 with:
 
 ---
 
-**Last Updated:** 2025-01-XX
+**Last Updated:** 2025-01-23
 **Phase:** 1 (Read-Only Base Tree)
-**Status:** Ready for deployment after environment setup
+**Status:** Deployed and operational - ready for data import
 

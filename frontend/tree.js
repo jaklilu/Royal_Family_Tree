@@ -5,7 +5,8 @@ let searchTimeouts = {};
 function updatePageTitle(person) {
     const titleElement = document.getElementById('page-title');
     if (person) {
-        const personName = person.name || person.name_original || 'Royal Family Tree';
+        // Prefer Amharic name for title, fallback to English
+        const personName = person.name_amharic || person.name || person.name_original || 'Royal Family Tree';
         const titleText = `${personName} Family Tree`;
         
         // Update header title
@@ -133,19 +134,19 @@ function createPersonCard(person, type, parentType = null) {
     card.className = `person-card ${type}`;
     card.dataset.personId = person.id;
     
-    // English name (top)
-    const nameEnglish = document.createElement('div');
-    nameEnglish.className = 'person-name person-name-english';
-    nameEnglish.textContent = person.name;
-    card.appendChild(nameEnglish);
-    
-    // Amharic name (bottom, if available)
+    // Amharic name (top, primary focus - bold)
     if (person.name_amharic) {
         const nameAmharic = document.createElement('div');
         nameAmharic.className = 'person-name person-name-amharic';
         nameAmharic.textContent = person.name_amharic;
         card.appendChild(nameAmharic);
     }
+    
+    // English name (bottom, secondary - lighter)
+    const nameEnglish = document.createElement('div');
+    nameEnglish.className = 'person-name person-name-english';
+    nameEnglish.textContent = person.name;
+    card.appendChild(nameEnglish);
     
     if (parentType) {
         const label = document.createElement('div');
@@ -347,7 +348,8 @@ function initRelationshipView() {
             const data = await api.search(query);
             displaySearchResults(resultsDiv, data.results, (person) => {
                 person2 = person;
-                document.getElementById('person2-selected').textContent = `Selected: ${person.name}`;
+                const displayName = person.name_amharic || person.name;
+                document.getElementById('person2-selected').textContent = `Selected: ${displayName}`;
                 person2Search.value = '';
                 resultsDiv.innerHTML = '';
                 updateFindButton();
@@ -392,7 +394,11 @@ function initRelationshipView() {
         results.forEach(person => {
             const div = document.createElement('div');
             div.className = 'search-result';
-            div.textContent = person.name;
+            // Show Amharic name as primary, English as secondary
+            const displayName = person.name_amharic 
+                ? `${person.name_amharic} (${person.name})`
+                : person.name;
+            div.textContent = displayName;
             div.addEventListener('click', () => onSelect(person));
             container.appendChild(div);
         });
@@ -415,7 +421,8 @@ function initRelationshipView() {
                 pathDiv.innerHTML = pathHtml;
                 
                 if (result.common_ancestor) {
-                    pathDiv.innerHTML += `<p class="common-ancestor">Common Ancestor: ${result.common_ancestor.name}</p>`;
+                    const ancestorName = result.common_ancestor.name_amharic || result.common_ancestor.name;
+                    pathDiv.innerHTML += `<p class="common-ancestor">Common Ancestor: ${ancestorName}</p>`;
                 }
             }
         }
