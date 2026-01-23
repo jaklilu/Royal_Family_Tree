@@ -11,8 +11,8 @@
     --accent-color-2: #764ba2;
     --background: linear-gradient(135deg, #667eea 0%, #764ba2 50%, #f093fb 100%);
     --background-solid: #f7f3ff;
-    --card-background: rgba(255, 255, 255, 0.7);
-    --card-background-hover: rgba(255, 255, 255, 0.85);
+    --card-background: rgba(240, 230, 255, 0.85);
+    --card-background-hover: rgba(250, 240, 255, 0.95);
     --text-primary: #1a202c;
     --text-secondary: #4a5568;
     --border-color: rgba(102, 126, 234, 0.3);
