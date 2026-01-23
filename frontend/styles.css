@@ -11,12 +11,12 @@
     --accent-color-2: #764ba2;
     --background: linear-gradient(135deg, #667eea 0%, #764ba2 50%, #f093fb 100%);
     --background-solid: #f7f3ff;
-    --card-background: rgba(240, 230, 255, 0.85);
-    --card-background-hover: rgba(250, 240, 255, 0.95);
+    --card-background: linear-gradient(135deg, rgba(180, 150, 255, 0.95) 0%, rgba(200, 170, 255, 0.95) 50%, rgba(220, 190, 255, 0.95) 100%);
+    --card-background-hover: linear-gradient(135deg, rgba(200, 170, 255, 0.98) 0%, rgba(220, 190, 255, 0.98) 50%, rgba(240, 210, 255, 0.98) 100%);
     --text-primary: #1a202c;
     --text-secondary: #4a5568;
-    --border-color: rgba(102, 126, 234, 0.3);
-    --border-color-hover: rgba(102, 126, 234, 0.6);
+    --border-color: rgba(150, 130, 255, 0.4);
+    --border-color-hover: rgba(180, 150, 255, 0.7);
     --error-color: #e53e3e;
     --success-color: #38a169;
     --spacing-unit: 1rem;
@@ -50,7 +50,7 @@ header {
     border-radius: 1rem;
     padding: 1rem;
     margin-top: 0.5rem;
-    box-shadow: var(--shadow-sm);
+    box-shadow: 0 4px 12px rgba(150, 100, 255, 0.3), var(--shadow-sm);
 }
 
 header h1 {
@@ -78,7 +78,7 @@ nav {
     font-size: 1rem;
     font-weight: 500;
     transition: all 0.3s;
-    box-shadow: var(--shadow-sm);
+    box-shadow: 0 4px 12px rgba(150, 100, 255, 0.3), var(--shadow-sm);
 }
 
 .nav-btn:hover {
@@ -206,7 +206,7 @@ nav {
     text-align: center;
     cursor: pointer;
     transition: all 0.3s;
-    box-shadow: var(--shadow-sm);
+    box-shadow: 0 4px 12px rgba(150, 100, 255, 0.3), var(--shadow-sm);
     backdrop-filter: blur(15px);
     display: flex;
     flex-direction: column;
@@ -217,7 +217,7 @@ nav {
 
 .person-card:hover {
     transform: translateY(-4px) scale(1.02);
-    box-shadow: var(--shadow-lg);
+    box-shadow: 0 8px 20px rgba(150, 100, 255, 0.4), var(--shadow-lg);
     border-color: var(--border-color-hover);
     background: var(--card-background-hover);
 }
