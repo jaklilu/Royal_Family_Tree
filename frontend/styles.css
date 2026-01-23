@@ -50,7 +50,7 @@ header {
     border-radius: 1rem;
     padding: 1rem;
     margin-top: 0.5rem;
-    box-shadow: 0 4px 12px rgba(150, 100, 255, 0.3), var(--shadow-sm);
+    box-shadow: var(--shadow-sm);
 }
 
 header h1 {
@@ -78,7 +78,7 @@ nav {
     font-size: 1rem;
     font-weight: 500;
     transition: all 0.3s;
-    box-shadow: 0 4px 12px rgba(150, 100, 255, 0.3), var(--shadow-sm);
+    box-shadow: var(--shadow-sm);
 }
 
 .nav-btn:hover {
@@ -206,7 +206,7 @@ nav {
     text-align: center;
     cursor: pointer;
     transition: all 0.3s;
-    box-shadow: 0 4px 12px rgba(150, 100, 255, 0.3), var(--shadow-sm);
+    box-shadow: var(--shadow-sm);
     backdrop-filter: blur(15px);
     display: flex;
     flex-direction: column;
