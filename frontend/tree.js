@@ -436,6 +436,8 @@ async function initRelationshipView() {
         console.log('Person2 lineage:', person2Lineage); // Debug
         console.log('Common ancestor:', commonAncestor); // Debug
         console.log('Siblings info:', siblingsInfo); // Debug
+        console.log('Person1 relationship label:', person1RelationshipLabel); // Debug
+        console.log('Person2 relationship label:', person2RelationshipLabel); // Debug
         
         const graphContainer = document.querySelector('.relationship-graph');
         if (commonAncestor && graphContainer) {
@@ -564,9 +566,10 @@ async function initRelationshipView() {
         let badge = '';
         if (isSibling) {
             badge = '<div class="sibling-badge">Sibling</div>';
-        } else if (relationshipLabel && isBottom) {
-            // Show relationship label on the selected person cards
-            badge = `<div class="relationship-label-badge">${relationshipLabel}</div>`;
+        }
+        // Always show relationship label on selected people (bottom cards), just like siblings
+        if (relationshipLabel && isBottom) {
+            badge += `<div class="relationship-label-badge">${relationshipLabel}</div>`;
         }
         
         return `

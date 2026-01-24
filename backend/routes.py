@@ -453,7 +453,7 @@ def get_relationship():
             elif gen1 == 2 and gen2 == 1:
                 relationship_type = "Aunt/Uncle and Niece/Nephew"
             elif gen1 == 2 and gen2 == 2:
-                relationship_type = "Cousins (same grandparent)"
+                relationship_type = "1st Cousins"
             elif gen1 == 1:
                 # Person1 is child of common ancestor, person2 is further down
                 if gen2 == 3:
@@ -580,6 +580,41 @@ def get_relationship():
                 else:
                     person1_relationship_label = "Great-Great-Niece/Nephew"
                     person2_relationship_label = "Great-Great-Aunt/Uncle"
+            
+            # Fallback: If labels weren't set but we have a relationship, calculate them based on generation levels
+            if not person1_relationship_label and gen1 >= 0 and gen2 >= 0:
+                # Calculate based on generation distance from common ancestor
+                if gen1 == 0:
+                    person1_relationship_label = "Same Person"
+                elif gen1 == 1:
+                    person1_relationship_label = "Child of Common Ancestor"
+                elif gen1 == 2:
+                    person1_relationship_label = "1st Cousin"
+                elif gen1 == 3:
+                    person1_relationship_label = "2nd Cousin"
+                elif gen1 == 4:
+                    person1_relationship_label = "3rd Cousin"
+                elif gen1 == 5:
+                    person1_relationship_label = "4th Cousin"
+                else:
+                    person1_relationship_label = f"{gen1 - 1}th Cousin"
+            
+            if not person2_relationship_label and gen1 >= 0 and gen2 >= 0:
+                # Calculate based on generation distance from common ancestor
+                if gen2 == 0:
+                    person2_relationship_label = "Same Person"
+                elif gen2 == 1:
+                    person2_relationship_label = "Child of Common Ancestor"
+                elif gen2 == 2:
+                    person2_relationship_label = "1st Cousin"
+                elif gen2 == 3:
+                    person2_relationship_label = "2nd Cousin"
+                elif gen2 == 4:
+                    person2_relationship_label = "3rd Cousin"
+                elif gen2 == 5:
+                    person2_relationship_label = "4th Cousin"
+                else:
+                    person2_relationship_label = f"{gen2 - 1}th Cousin"
         
         return jsonify({
             'found': True,
