@@ -433,11 +433,30 @@ async function initRelationshipView() {
         console.log('Person2 lineage:', person2Lineage); // Debug
         console.log('Common ancestor:', commonAncestor); // Debug
         
+        const graphContainer = document.querySelector('.relationship-graph');
+        if (commonAncestor && graphContainer) {
+            graphContainer.classList.add('has-common-ancestor');
+        } else if (graphContainer) {
+            graphContainer.classList.remove('has-common-ancestor');
+        }
+        
         if (person1Lineage.length === 0 && person2Lineage.length === 0) {
             person1Card.innerHTML = '<div class="no-relationship">No lineage data available</div>';
             person2Card.innerHTML = '';
             infoDiv.innerHTML = '<p class="error">Unable to determine relationship paths.</p>';
             return;
+        }
+        
+        // Find the index of common ancestor in both lineages to align them
+        let person1CommonIdx = -1;
+        let person2CommonIdx = -1;
+        if (commonAncestor) {
+            person1Lineage.forEach((p, idx) => {
+                if (p.id === commonAncestor.id) person1CommonIdx = idx;
+            });
+            person2Lineage.forEach((p, idx) => {
+                if (p.id === commonAncestor.id) person2CommonIdx = idx;
+            });
         }
         
         // Render Person 1's lineage (left column: person at bottom, ancestors going up)
@@ -451,6 +470,36 @@ async function initRelationshipView() {
                 '</div>';
         } else {
             person1Card.innerHTML = '<div class="no-relationship">No ancestors found</div>';
+        }
+        
+        // Render connection bridge in the middle if there's a common ancestor
+        let connectionBridge = '';
+        if (commonAncestor && person1CommonIdx >= 0 && person2CommonIdx >= 0) {
+            const maxHeight = Math.max(person1Lineage.length, person2Lineage.length);
+            const commonHeight = Math.max(person1CommonIdx, person2CommonIdx);
+            connectionBridge = `
+                <div class="connection-bridge" style="grid-row: 1 / ${commonHeight + 2};">
+                    <div class="bridge-line"></div>
+                    <div class="bridge-meeting-point">
+                        <div class="meeting-circle"></div>
+                    </div>
+                </div>
+            `;
+        }
+        
+        // Render connection bridge in the middle if there's a common ancestor
+        const connectionBridgeEl = document.getElementById('connection-bridge');
+        if (commonAncestor && person1CommonIdx >= 0 && person2CommonIdx >= 0 && connectionBridgeEl) {
+            connectionBridgeEl.innerHTML = `
+                <div class="bridge-line"></div>
+                <div class="bridge-meeting-point">
+                    <div class="meeting-circle"></div>
+                </div>
+            `;
+            connectionBridgeEl.style.display = 'flex';
+        } else if (connectionBridgeEl) {
+            connectionBridgeEl.innerHTML = '';
+            connectionBridgeEl.style.display = 'none';
         }
         
         // Render Person 2's lineage (right column: person at bottom, ancestors going up)
