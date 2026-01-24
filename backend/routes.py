@@ -421,8 +421,6 @@ def get_relationship():
                     'person2': sibling2,
                     'generation_level': gen1
                 }
-            gen1 = person1_ancestors.get(common_ancestor_id, -1)
-            gen2 = person2_ancestors.get(common_ancestor_id, -1)
             
             if gen1 == 0 and gen2 == 0:
                 relationship_type = "Same person"
