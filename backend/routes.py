@@ -302,17 +302,18 @@ def get_relationship():
             # Trim lineages to only include up to common ancestor
             person1_lineage_trimmed = []
             person2_lineage_trimmed = []
+            common_ancestor_id_str = str(common_ancestor.id)
             
             # Build person1's path up to common ancestor
             for person_dict in person1_lineage:
                 person1_lineage_trimmed.append(person_dict)
-                if person_dict['id'] == str(common_ancestor.id):
+                if person_dict.get('id') == common_ancestor_id_str:
                     break
             
             # Build person2's path up to common ancestor
             for person_dict in person2_lineage:
                 person2_lineage_trimmed.append(person_dict)
-                if person_dict['id'] == str(common_ancestor.id):
+                if person_dict.get('id') == common_ancestor_id_str:
                     break
             
             return jsonify({
