@@ -477,57 +477,57 @@ def get_relationship():
                 
                 if min_gen == 2:
                     if diff == 0:
-                        relationship_type = "Cousins"
+                        relationship_type = "1st Cousins"
                     elif diff == 1:
-                        relationship_type = "Cousins (once removed)"
+                        relationship_type = "1st Cousins (1 generation apart)"
                     elif diff == 2:
-                        relationship_type = "Cousins (twice removed)"
+                        relationship_type = "1st Cousins (2 generations apart)"
                     else:
-                        relationship_type = f"Cousins ({diff} times removed)"
+                        relationship_type = f"1st Cousins ({diff} generations apart)"
                 elif min_gen == 3:
                     if diff == 0:
-                        relationship_type = "Second Cousins"
+                        relationship_type = "2nd Cousins"
                     elif diff == 1:
-                        relationship_type = "Second Cousins (once removed)"
+                        relationship_type = "2nd Cousins (1 generation apart)"
                     else:
-                        relationship_type = f"Second Cousins ({diff} times removed)"
+                        relationship_type = f"2nd Cousins ({diff} generations apart)"
                 elif min_gen == 4:
                     if diff == 0:
-                        relationship_type = "Third Cousins"
+                        relationship_type = "3rd Cousins"
                     elif diff == 1:
-                        relationship_type = "Third Cousins (once removed)"
+                        relationship_type = "3rd Cousins (1 generation apart)"
                     else:
-                        relationship_type = f"Third Cousins ({diff} times removed)"
+                        relationship_type = f"3rd Cousins ({diff} generations apart)"
                 elif min_gen == 5:
                     if diff == 0:
-                        relationship_type = "Fourth Cousins"
+                        relationship_type = "4th Cousins"
                     else:
-                        relationship_type = f"Fourth Cousins ({diff} times removed)"
+                        relationship_type = f"4th Cousins ({diff} generation{'s' if diff > 1 else ''} apart)"
                 else:
                     # For more distant relationships
                     cousin_level = min_gen - 1
                     if diff == 0:
                         if cousin_level == 1:
-                            relationship_type = "Cousins"
+                            relationship_type = "1st Cousins"
                         elif cousin_level == 2:
-                            relationship_type = "Second Cousins"
+                            relationship_type = "2nd Cousins"
                         elif cousin_level == 3:
-                            relationship_type = "Third Cousins"
+                            relationship_type = "3rd Cousins"
                         elif cousin_level == 4:
-                            relationship_type = "Fourth Cousins"
+                            relationship_type = "4th Cousins"
                         else:
                             relationship_type = f"{cousin_level}th Cousins"
                     else:
                         if cousin_level == 1:
-                            relationship_type = f"Cousins ({diff} times removed)"
+                            relationship_type = f"1st Cousins ({diff} generation{'s' if diff > 1 else ''} apart)"
                         elif cousin_level == 2:
-                            relationship_type = f"Second Cousins ({diff} times removed)"
+                            relationship_type = f"2nd Cousins ({diff} generation{'s' if diff > 1 else ''} apart)"
                         elif cousin_level == 3:
-                            relationship_type = f"Third Cousins ({diff} times removed)"
+                            relationship_type = f"3rd Cousins ({diff} generation{'s' if diff > 1 else ''} apart)"
                         elif cousin_level == 4:
-                            relationship_type = f"Fourth Cousins ({diff} times removed)"
+                            relationship_type = f"4th Cousins ({diff} generation{'s' if diff > 1 else ''} apart)"
                         else:
-                            relationship_type = f"{cousin_level}th Cousins ({diff} times removed)"
+                            relationship_type = f"{cousin_level}th Cousins ({diff} generation{'s' if diff > 1 else ''} apart)"
         
         # Determine relationship labels for each person
         person1_relationship_label = None
@@ -542,27 +542,18 @@ def get_relationship():
                 person2_relationship_label = "Sibling"
             elif "Cousins" in relationship_type or "cousins" in relationship_type.lower():
                 # Extract cousin level (1st, 2nd, 3rd, 4th, etc.)
-                if "Second Cousins" in relationship_type:
-                    if "removed" in relationship_type.lower():
-                        # For removed cousins, both are still cousins but with different generations
-                        person1_relationship_label = "2nd Cousin"
-                        person2_relationship_label = "2nd Cousin"
-                    else:
-                        person1_relationship_label = "2nd Cousin"
-                        person2_relationship_label = "2nd Cousin"
-                elif "Third Cousins" in relationship_type:
+                if "2nd Cousins" in relationship_type or "Second Cousins" in relationship_type:
+                    person1_relationship_label = "2nd Cousin"
+                    person2_relationship_label = "2nd Cousin"
+                elif "3rd Cousins" in relationship_type or "Third Cousins" in relationship_type:
                     person1_relationship_label = "3rd Cousin"
                     person2_relationship_label = "3rd Cousin"
-                elif "Fourth Cousins" in relationship_type:
+                elif "4th Cousins" in relationship_type or "Fourth Cousins" in relationship_type:
                     person1_relationship_label = "4th Cousin"
                     person2_relationship_label = "4th Cousin"
-                elif "Cousins" in relationship_type and "Second" not in relationship_type and "Third" not in relationship_type and "Fourth" not in relationship_type:
-                    if "removed" in relationship_type.lower():
-                        person1_relationship_label = "1st Cousin"
-                        person2_relationship_label = "1st Cousin"
-                    else:
-                        person1_relationship_label = "1st Cousin"
-                        person2_relationship_label = "1st Cousin"
+                elif "1st Cousins" in relationship_type or ("Cousins" in relationship_type and "2nd" not in relationship_type and "3rd" not in relationship_type and "4th" not in relationship_type and "Second" not in relationship_type and "Third" not in relationship_type and "Fourth" not in relationship_type):
+                    person1_relationship_label = "1st Cousin"
+                    person2_relationship_label = "1st Cousin"
                 else:
                     # Fallback for other cousin types
                     person1_relationship_label = "Cousin"
