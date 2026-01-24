@@ -26,6 +26,11 @@
             <div id="error" class="error hidden"></div>
             
             <div id="tree-container" class="tree-container">
+                <!-- SVG for connecting lines - MUST be first to stay in background -->
+                <svg id="tree-lines" class="tree-lines" xmlns="http://www.w3.org/2000/svg">
+                    <!-- Lines will be drawn here -->
+                </svg>
+                
                 <!-- Top: Parent -->
                 <div id="parent-section" class="section parent-section">
                     <!-- Parent card will be inserted here -->
@@ -40,11 +45,6 @@
                 <div id="children-section" class="section children-section">
                     <!-- Children cards will be inserted here -->
                 </div>
-                
-                <!-- SVG for connecting lines -->
-                <svg id="tree-lines" class="tree-lines" xmlns="http://www.w3.org/2000/svg">
-                    <!-- Lines will be drawn here -->
-                </svg>
             </div>
         </div>
 
