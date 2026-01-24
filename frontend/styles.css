@@ -12,8 +12,8 @@
     --accent-color-3: #DA121A; /* Ethiopian Red */
     --background: linear-gradient(135deg, #078930 0%, #FCDD09 50%, #DA121A 100%);
     --background-solid: #f0f8f4;
-    --card-background: rgba(240, 255, 240, 0.9);
-    --card-background-hover: rgba(250, 255, 250, 0.95);
+    --card-background: rgba(255, 250, 220, 0.9);
+    --card-background-hover: rgba(255, 255, 240, 0.95);
     --text-primary: #1a202c;
     --text-secondary: #4a5568;
     --border-color: rgba(7, 137, 48, 0.4);
