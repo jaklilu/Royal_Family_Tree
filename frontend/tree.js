@@ -468,8 +468,7 @@ async function initRelationshipView() {
                     const isBottom = idx === 0; // First person is at bottom
                     const isCommonAncestor = commonAncestor && person.id === commonAncestor.id;
                     const isSibling = siblingsInfo && siblingsInfo.relationship === 'siblings' && person.id === siblingsInfo.person1.id;
-                    const isCousin = siblingsInfo && siblingsInfo.relationship === 'cousins' && person.id === siblingsInfo.person1.id;
-                    return renderLineageCard(person, idx, person1Lineage.length, 'left', isCommonAncestor, isBottom, isSibling, isCousin);
+                    return renderLineageCard(person, idx, person1Lineage.length, 'left', isCommonAncestor, isBottom, isSibling);
                 }).join('') +
                 '</div>';
         } else {
@@ -527,26 +526,15 @@ async function initRelationshipView() {
             const relationshipType = result.relationship_type || 'Related';
             
             let siblingsText = '';
-            if (siblingsInfo) {
+            if (siblingsInfo && siblingsInfo.relationship === 'siblings') {
                 const person1Name = siblingsInfo.person1.name_amharic || siblingsInfo.person1.name;
                 const person2Name = siblingsInfo.person2.name_amharic || siblingsInfo.person2.name;
-                const relationship = siblingsInfo.relationship || 'siblings';
-                
-                if (relationship === 'siblings') {
-                    siblingsText = `
-                        <p class="siblings-info">
-                            <strong>Siblings:</strong> ${person1Name} and ${person2Name} 
-                            (they share ${ancestorName} as their parent)
-                        </p>
-                    `;
-                } else if (relationship === 'cousins') {
-                    siblingsText = `
-                        <p class="cousins-info">
-                            <strong>Cousins:</strong> ${person1Name} and ${person2Name} 
-                            (they share ${ancestorName} as their grandparent)
-                        </p>
-                    `;
-                }
+                siblingsText = `
+                    <p class="siblings-info">
+                        <strong>Siblings:</strong> ${person1Name} and ${person2Name} 
+                        (they share ${ancestorName} as their parent)
+                    </p>
+                `;
             }
             
             infoDiv.innerHTML = `
@@ -559,14 +547,13 @@ async function initRelationshipView() {
         }
     }
     
-    function renderLineageCard(person, index, total, side, isCommonAncestor, isBottom, isSibling, isCousin) {
+    function renderLineageCard(person, index, total, side, isCommonAncestor, isBottom, isSibling) {
         const isTop = index === total - 1; // Last person (parent)
         
         let cardClass = 'lineage-person-card';
         if (isBottom) cardClass += ' selected-person-card';
         if (isCommonAncestor) cardClass += ' common-ancestor-card';
         if (isSibling) cardClass += ' sibling-card';
-        if (isCousin) cardClass += ' cousin-card';
         
         const amharicName = person.name_amharic || '';
         const englishName = person.name || 'Unknown';
@@ -574,8 +561,6 @@ async function initRelationshipView() {
         let badge = '';
         if (isSibling) {
             badge = '<div class="sibling-badge">Sibling</div>';
-        } else if (isCousin) {
-            badge = '<div class="cousin-badge">Cousin</div>';
         }
         
         return `

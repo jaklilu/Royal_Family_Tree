@@ -411,36 +411,37 @@ def get_relationship():
                     gen2 = idx
                     break
             
-            # Check if the people one generation below the common ancestor are siblings or cousins
-            # Siblings: gen1 == 1 and gen2 == 1 (share same parent)
-            # Cousins: gen1 == 2 and gen2 == 2 (share same grandparent)
+            # Check if the people one generation below the common ancestor are siblings
+            # They are siblings if they share the common ancestor as their parent
             if gen1 > 0 and gen2 > 0:
                 person1_below = person1_lineage[gen1 - 1]
                 person2_below = person2_lineage[gen2 - 1]
                 
-                if gen1 == 1 and gen2 == 1:
-                    # They are siblings (share same parent)
+                # Verify they are actually siblings by checking if they share the common ancestor as parent
+                person1_below_id = uuid.UUID(person1_below.get('id'))
+                person2_below_id = uuid.UUID(person2_below.get('id'))
+                
+                # Check if person1_below has common_ancestor as parent
+                person1_has_ancestor_as_parent = Relationship.query.filter_by(
+                    child_id=person1_below_id,
+                    parent_id=common_ancestor_id,
+                    visibility='public'
+                ).first() is not None
+                
+                # Check if person2_below has common_ancestor as parent
+                person2_has_ancestor_as_parent = Relationship.query.filter_by(
+                    child_id=person2_below_id,
+                    parent_id=common_ancestor_id,
+                    visibility='public'
+                ).first() is not None
+                
+                # If both have the common ancestor as their parent, they are siblings
+                if person1_has_ancestor_as_parent and person2_has_ancestor_as_parent:
                     siblings_info = {
                         'person1': person1_below,
                         'person2': person2_below,
                         'generation_level': gen1,
                         'relationship': 'siblings'
-                    }
-                elif gen1 == 2 and gen2 == 2:
-                    # They are cousins (share same grandparent)
-                    siblings_info = {
-                        'person1': person1_below,
-                        'person2': person2_below,
-                        'generation_level': gen1,
-                        'relationship': 'cousins'
-                    }
-                elif gen1 > 0 and gen2 > 0 and gen1 == gen2:
-                    # Same generation level from common ancestor - could be cousins or more distant
-                    siblings_info = {
-                        'person1': person1_below,
-                        'person2': person2_below,
-                        'generation_level': gen1,
-                        'relationship': 'cousins' if gen1 >= 2 else 'siblings'
                     }
             
             if gen1 == 0 and gen2 == 0:
