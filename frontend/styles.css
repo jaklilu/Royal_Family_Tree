@@ -485,104 +485,114 @@ nav {
 
 .relationship-graph {
     display: grid;
-    grid-template-columns: 1fr auto 1fr;
-    gap: 1.5rem;
-    align-items: center;
+    grid-template-columns: 1fr 1fr;
+    gap: 2rem;
+    align-items: start;
     margin-bottom: 2rem;
-    min-height: 200px;
+    min-height: 300px;
 }
 
 .relationship-person-card {
     display: flex;
     justify-content: center;
-    align-items: center;
 }
 
-.relationship-card {
-    background: var(--card-background);
-    border: 2px solid var(--border-color);
-    border-radius: 1rem;
-    padding: 1.5rem;
-    text-align: center;
-    min-width: 200px;
-    max-width: 250px;
-    box-shadow: var(--shadow-md);
-}
-
-.relationship-card.left {
-    background: linear-gradient(135deg, #078930 0%, #0db848 100%);
-    color: white;
-}
-
-.relationship-card.right {
-    background: linear-gradient(135deg, #078930 0%, #0db848 100%);
-    color: white;
-}
-
-.relationship-card-name-amharic {
-    font-size: 1.2rem;
-    font-weight: 700;
-    margin-bottom: 0.5rem;
-    color: white;
-}
-
-.relationship-card-name {
-    font-size: 1rem;
-    font-weight: 400;
-    color: rgba(255, 255, 255, 0.9);
-    font-style: italic;
-}
-
-.relationship-path-container {
+.lineage-column {
     display: flex;
     flex-direction: column;
     align-items: center;
-    justify-content: center;
-    gap: 1rem;
-    min-height: 150px;
-    padding: 1rem;
+    width: 100%;
 }
 
-.path-person-card {
-    background: rgba(255, 255, 255, 0.9);
+.lineage-person-card {
+    background: var(--card-background);
     border: 2px solid var(--border-color);
-    border-radius: 0.75rem;
-    padding: 1rem 1.5rem;
+    border-radius: 1rem;
+    padding: 1.25rem;
     text-align: center;
+    width: 100%;
+    max-width: 250px;
     box-shadow: var(--shadow-sm);
-    min-width: 180px;
+    margin-bottom: 0;
+    position: relative;
 }
 
-.path-person-name-amharic {
+.lineage-person-card.selected-person-card {
+    background: linear-gradient(135deg, #DA121A 0%, #c81018 100%);
+    color: white;
+    border-color: transparent;
+    box-shadow: var(--shadow-md);
+}
+
+.lineage-person-card.common-ancestor-card {
+    background: linear-gradient(135deg, #FCDD09 0%, #FEE500 100%);
+    color: var(--text-primary);
+    border-color: var(--accent-color);
+    border-width: 3px;
+    box-shadow: var(--shadow-lg);
+    font-weight: 600;
+}
+
+.lineage-card-name-amharic {
     font-size: 1.1rem;
     font-weight: 700;
-    color: var(--text-primary);
-    margin-bottom: 0.25rem;
+    margin-bottom: 0.5rem;
 }
 
-.path-person-name {
-    font-size: 0.9rem;
+.lineage-person-card.selected-person-card .lineage-card-name-amharic,
+.lineage-person-card.selected-person-card .lineage-card-name {
+    color: white;
+}
+
+.lineage-person-card.common-ancestor-card .lineage-card-name-amharic {
+    color: var(--text-primary);
+}
+
+.lineage-card-name {
+    font-size: 0.95rem;
     font-weight: 400;
-    color: var(--text-secondary);
     font-style: italic;
 }
 
-.path-arrow {
-    font-size: 2rem;
-    color: var(--accent-color);
-    font-weight: bold;
+.lineage-person-card.selected-person-card .lineage-card-name {
+    color: rgba(255, 255, 255, 0.9);
+}
+
+.lineage-connector {
+    width: 2px;
+    height: 40px;
+    background: var(--border-color);
+    margin: 0 auto;
+    position: relative;
+}
+
+.lineage-connector::after {
+    content: '';
+    position: absolute;
+    bottom: -8px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 0;
+    height: 0;
+    border-left: 6px solid transparent;
+    border-right: 6px solid transparent;
+    border-top: 8px solid var(--border-color);
+}
+
+.relationship-path-container {
+    display: none; /* Not used in new design */
 }
 
 .no-relationship,
-.same-person,
-.direct-relationship {
-    padding: 1.5rem;
+.same-person {
+    padding: 2rem;
     text-align: center;
     background: rgba(255, 255, 255, 0.8);
     border-radius: 0.75rem;
     border: 2px dashed var(--border-color);
     color: var(--text-secondary);
     font-weight: 500;
+    grid-column: 1 / -1;
 }
 
 .relationship-info {
@@ -612,17 +622,15 @@ nav {
     
     .relationship-graph {
         grid-template-columns: 1fr;
-        gap: 1rem;
+        gap: 1.5rem;
     }
     
-    .relationship-path-container {
-        flex-direction: row;
-        flex-wrap: wrap;
-        justify-content: center;
+    .lineage-column {
+        width: 100%;
     }
     
-    .path-arrow {
-        transform: rotate(90deg);
+    .lineage-person-card {
+        max-width: 100%;
     }
 }
 

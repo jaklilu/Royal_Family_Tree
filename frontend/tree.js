@@ -407,68 +407,70 @@ async function initRelationshipView() {
         
         visualization.classList.remove('hidden');
         
-        // Display Person 1 card (left)
-        renderPersonCard(person1Card, person1Data, 'left');
-        
-        // Display Person 2 card (right)
-        renderPersonCard(person2Card, person2Data, 'right');
-        
         if (!result.found) {
+            // No relationship found
+            person1Card.innerHTML = '';
+            person2Card.innerHTML = '';
             pathContainer.innerHTML = '<div class="no-relationship">No relationship found</div>';
             infoDiv.innerHTML = '<p class="error">These two people are not related in the family tree.</p>';
-        } else if (result.path.length === 0) {
+            return;
+        }
+        
+        if (result.message === 'Same person') {
+            // Same person selected
+            person1Card.innerHTML = '';
+            person2Card.innerHTML = '';
             pathContainer.innerHTML = '<div class="same-person">Same person selected</div>';
             infoDiv.innerHTML = '<p>You selected the same person twice.</p>';
+            return;
+        }
+        
+        // Display vertical trees: Person 1 lineage on left, Person 2 lineage on right
+        const person1Lineage = result.person1_lineage || [];
+        const person2Lineage = result.person2_lineage || [];
+        const commonAncestor = result.common_ancestor;
+        
+        // Render Person 1's lineage (left column, bottom to top)
+        person1Card.innerHTML = '<div class="lineage-column left-lineage">' +
+            person1Lineage.map((person, idx) => {
+                const isCommonAncestor = commonAncestor && person.id === commonAncestor.id;
+                return renderLineageCard(person, idx, person1Lineage.length, 'left', isCommonAncestor);
+            }).join('') +
+            '</div>';
+        
+        // Render Person 2's lineage (right column, bottom to top)
+        person2Card.innerHTML = '<div class="lineage-column right-lineage">' +
+            person2Lineage.map((person, idx) => {
+                const isCommonAncestor = commonAncestor && person.id === commonAncestor.id;
+                return renderLineageCard(person, idx, person2Lineage.length, 'right', isCommonAncestor);
+            }).join('') +
+            '</div>';
+        
+        // Clear path container (not needed in new design)
+        pathContainer.innerHTML = '';
+        
+        // Display relationship info
+        if (commonAncestor) {
+            const ancestorName = commonAncestor.name_amharic || commonAncestor.name;
+            infoDiv.innerHTML = `<p class="common-ancestor-info">Common Ancestor: <strong>${ancestorName}</strong></p>`;
         } else {
-            // Display path in center
-            // result.path contains objects with {id, name}
-            const pathPeople = result.path.map(pathPerson => {
-                return allPeople.find(p => p.id === pathPerson.id) || {
-                    id: pathPerson.id,
-                    name: pathPerson.name || 'Unknown',
-                    name_amharic: null
-                };
-            });
-            
-            // Remove person1 and person2 from path (they're already displayed on sides)
-            const middlePath = pathPeople.filter(p => 
-                p.id !== person1Data.id && p.id !== person2Data.id
-            );
-            
-            if (middlePath.length === 0) {
-                // Direct relationship (parent-child or siblings)
-                pathContainer.innerHTML = '<div class="direct-relationship">Direct Relationship</div>';
-            } else {
-                // Display connecting people
-                pathContainer.innerHTML = middlePath.map((person, idx) => {
-                    const displayName = person.name_amharic || person.name;
-                    return `
-                        <div class="path-person-card">
-                            <div class="path-person-name-amharic">${person.name_amharic || ''}</div>
-                            <div class="path-person-name">${person.name}</div>
-                        </div>
-                        ${idx < middlePath.length - 1 ? '<div class="path-arrow">→</div>' : ''}
-                    `;
-                }).join('');
-            }
-            
-            // Display relationship info
-            if (result.common_ancestor) {
-                const ancestorName = result.common_ancestor.name_amharic || result.common_ancestor.name;
-                infoDiv.innerHTML = `<p class="common-ancestor-info">Common Ancestor: <strong>${ancestorName}</strong></p>`;
-            } else {
-                infoDiv.innerHTML = `<p>Relationship path found (${result.path.length} steps)</p>`;
-            }
+            infoDiv.innerHTML = '<p>No common ancestor found.</p>';
         }
     }
     
-    function renderPersonCard(container, person, side) {
-        const displayName = person.name_amharic || person.name;
-        const englishName = person.name;
-        container.innerHTML = `
-            <div class="relationship-card ${side}">
-                <div class="relationship-card-name-amharic">${person.name_amharic || ''}</div>
-                <div class="relationship-card-name">${englishName}</div>
+    function renderLineageCard(person, index, total, side, isCommonAncestor) {
+        const isBottom = index === 0; // First person in lineage (the selected person)
+        const isTop = index === total - 1; // Last person (common ancestor or root)
+        
+        let cardClass = 'lineage-person-card';
+        if (isBottom) cardClass += ' selected-person-card';
+        if (isCommonAncestor) cardClass += ' common-ancestor-card';
+        
+        return `
+            <div class="${cardClass} ${side}" data-person-id="${person.id}">
+                <div class="lineage-card-name-amharic">${person.name_amharic || ''}</div>
+                <div class="lineage-card-name">${person.name}</div>
+                ${!isTop ? '<div class="lineage-connector"></div>' : ''}
             </div>
         `;
     }

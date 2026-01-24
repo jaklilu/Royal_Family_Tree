@@ -262,7 +262,7 @@ def get_all_people():
 
 @api_bp.route('/api/relationship', methods=['GET'])
 def get_relationship():
-    """Find shortest path between two people using BFS"""
+    """Find relationship with ancestry paths going up to common ancestor"""
     person1_id = request.args.get('person1_id')
     person2_id = request.args.get('person2_id')
     
@@ -273,10 +273,14 @@ def get_relationship():
         return get_error_response('BAD_REQUEST', 'Invalid person ID format')
     
     if person1_id == person2_id:
+        person = Person.query.filter_by(id=person1_id, layer='base').first()
+        if not person:
+            return get_error_response('NOT_FOUND', 'Person not found')
         return jsonify({
             'found': True,
-            'path': [],
-            'common_ancestor': None,
+            'person1_lineage': [person.to_dict()],
+            'person2_lineage': [],
+            'common_ancestor': person.to_dict(),
             'message': 'Same person'
         })
     
@@ -287,22 +291,41 @@ def get_relationship():
         if not person1 or not person2:
             return get_error_response('NOT_FOUND', 'One or both persons not found')
         
-        # BFS to find shortest path (undirected graph)
-        path = bfs_shortest_path(person1_id, person2_id)
+        # Get ancestry paths going up to common ancestor
+        person1_lineage = get_ancestry_path(person1_id)
+        person2_lineage = get_ancestry_path(person2_id)
         
-        if path:
-            # Find common ancestor (first shared node when walking up from both)
-            common_ancestor = find_common_ancestor(person1_id, person2_id)
+        # Find common ancestor
+        common_ancestor = find_common_ancestor(person1_id, person2_id)
+        
+        if common_ancestor:
+            # Trim lineages to only include up to common ancestor
+            person1_lineage_trimmed = []
+            person2_lineage_trimmed = []
+            
+            # Build person1's path up to common ancestor
+            for person_dict in person1_lineage:
+                person1_lineage_trimmed.append(person_dict)
+                if person_dict['id'] == str(common_ancestor.id):
+                    break
+            
+            # Build person2's path up to common ancestor
+            for person_dict in person2_lineage:
+                person2_lineage_trimmed.append(person_dict)
+                if person_dict['id'] == str(common_ancestor.id):
+                    break
             
             return jsonify({
                 'found': True,
-                'path': [{'id': str(p_id), 'name': get_person_name(p_id)} for p_id in path],
-                'common_ancestor': common_ancestor.to_dict() if common_ancestor else None
+                'person1_lineage': person1_lineage_trimmed,
+                'person2_lineage': person2_lineage_trimmed,
+                'common_ancestor': common_ancestor.to_dict()
             })
         else:
             return jsonify({
                 'found': False,
-                'path': [],
+                'person1_lineage': person1_lineage,
+                'person2_lineage': person2_lineage,
                 'common_ancestor': None
             })
     except Exception as e:
@@ -407,6 +430,52 @@ def get_all_ancestors(person_id):
             queue.append(rel.parent_id)
     
     return ancestors
+
+
+def get_ancestry_path(person_id):
+    """Get ancestry path going up (person -> parent -> grandparent -> ...)"""
+    path = []
+    current_id = person_id
+    visited = set()
+    
+    while current_id:
+        if current_id in visited:
+            break
+        visited.add(current_id)
+        
+        person = Person.query.get(current_id)
+        if not person:
+            break
+        
+        path.append(person.to_dict())
+        
+        # Get parent (prefer father, else mother, else any)
+        parent_rels = Relationship.query.filter_by(
+            child_id=current_id,
+            visibility='public'
+        ).all()
+        
+        parent = None
+        for rel in parent_rels:
+            if rel.relation_type == 'father':
+                parent = rel.parent
+                break
+        
+        if not parent:
+            for rel in parent_rels:
+                if rel.relation_type == 'mother':
+                    parent = rel.parent
+                    break
+        
+        if not parent and parent_rels:
+            parent = parent_rels[0].parent
+        
+        if parent:
+            current_id = parent.id
+        else:
+            break
+    
+    return path
 
 
 def get_person_name(person_id):
