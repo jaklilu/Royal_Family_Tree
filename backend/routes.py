@@ -279,56 +279,58 @@ def get_relationship():
         if not person1 or not person2:
             return get_error_response('NOT_FOUND', 'One or both persons not found')
         
-        # Get parent for person1 (prefer father, else mother, else any)
-        person1_parent = None
-        person1_parent_rels = Relationship.query.filter_by(
-            child_id=person1_id,
-            visibility='public'
-        ).options(joinedload(Relationship.parent)).all()
-        
-        for rel in person1_parent_rels:
-            if rel.relation_type == 'father':
-                person1_parent = rel.parent
-                break
-        
-        if not person1_parent:
-            for rel in person1_parent_rels:
-                if rel.relation_type == 'mother':
-                    person1_parent = rel.parent
+        # Helper function to get parent (prefer father, else mother, else any)
+        def get_parent(person_id):
+            parent_rels = Relationship.query.filter_by(
+                child_id=person_id,
+                visibility='public'
+            ).options(joinedload(Relationship.parent)).all()
+            
+            parent = None
+            for rel in parent_rels:
+                if rel.relation_type == 'father':
+                    parent = rel.parent
                     break
+            
+            if not parent:
+                for rel in parent_rels:
+                    if rel.relation_type == 'mother':
+                        parent = rel.parent
+                        break
+            
+            if not parent and parent_rels:
+                parent = parent_rels[0].parent
+            
+            return parent
         
-        if not person1_parent and person1_parent_rels:
-            person1_parent = person1_parent_rels[0].parent
+        # Get parent for person1
+        person1_parent = get_parent(person1_id)
         
-        # Get parent for person2 (prefer father, else mother, else any)
-        person2_parent = None
-        person2_parent_rels = Relationship.query.filter_by(
-            child_id=person2_id,
-            visibility='public'
-        ).options(joinedload(Relationship.parent)).all()
+        # Get grandparent for person1 (parent's parent)
+        person1_grandparent = None
+        if person1_parent:
+            person1_grandparent = get_parent(person1_parent.id)
         
-        for rel in person2_parent_rels:
-            if rel.relation_type == 'father':
-                person2_parent = rel.parent
-                break
+        # Get parent for person2
+        person2_parent = get_parent(person2_id)
         
-        if not person2_parent:
-            for rel in person2_parent_rels:
-                if rel.relation_type == 'mother':
-                    person2_parent = rel.parent
-                    break
+        # Get grandparent for person2 (parent's parent)
+        person2_grandparent = None
+        if person2_parent:
+            person2_grandparent = get_parent(person2_parent.id)
         
-        if not person2_parent and person2_parent_rels:
-            person2_parent = person2_parent_rels[0].parent
-        
-        # Build lineages: person and their parent
+        # Build lineages: person -> parent -> grandparent
         person1_lineage = [person1.to_dict()]
         if person1_parent:
             person1_lineage.append(person1_parent.to_dict())
+        if person1_grandparent:
+            person1_lineage.append(person1_grandparent.to_dict())
         
         person2_lineage = [person2.to_dict()]
         if person2_parent:
             person2_lineage.append(person2_parent.to_dict())
+        if person2_grandparent:
+            person2_lineage.append(person2_grandparent.to_dict())
         
         return jsonify({
             'found': True,
