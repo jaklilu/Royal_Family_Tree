@@ -402,25 +402,24 @@ async function initRelationshipView() {
         const visualization = document.getElementById('relationship-visualization');
         const person1Card = document.getElementById('person1-card');
         const person2Card = document.getElementById('person2-card');
-        const pathContainer = document.getElementById('relationship-path-container');
         const infoDiv = document.getElementById('relationship-info');
         
         visualization.classList.remove('hidden');
         
+        console.log('Relationship result:', result); // Debug
+        
         if (!result.found) {
             // No relationship found
-            person1Card.innerHTML = '';
+            person1Card.innerHTML = '<div class="no-relationship">No relationship found</div>';
             person2Card.innerHTML = '';
-            pathContainer.innerHTML = '<div class="no-relationship">No relationship found</div>';
             infoDiv.innerHTML = '<p class="error">These two people are not related in the family tree.</p>';
             return;
         }
         
         if (result.message === 'Same person') {
             // Same person selected
-            person1Card.innerHTML = '';
+            person1Card.innerHTML = '<div class="same-person">Same person selected</div>';
             person2Card.innerHTML = '';
-            pathContainer.innerHTML = '<div class="same-person">Same person selected</div>';
             infoDiv.innerHTML = '<p>You selected the same person twice.</p>';
             return;
         }
@@ -430,24 +429,39 @@ async function initRelationshipView() {
         const person2Lineage = result.person2_lineage || [];
         const commonAncestor = result.common_ancestor;
         
+        console.log('Person1 lineage:', person1Lineage); // Debug
+        console.log('Person2 lineage:', person2Lineage); // Debug
+        
+        if (person1Lineage.length === 0 && person2Lineage.length === 0) {
+            person1Card.innerHTML = '<div class="no-relationship">No lineage data available</div>';
+            person2Card.innerHTML = '';
+            infoDiv.innerHTML = '<p class="error">Unable to determine relationship paths.</p>';
+            return;
+        }
+        
         // Render Person 1's lineage (left column, bottom to top)
-        person1Card.innerHTML = '<div class="lineage-column left-lineage">' +
-            person1Lineage.map((person, idx) => {
-                const isCommonAncestor = commonAncestor && person.id === commonAncestor.id;
-                return renderLineageCard(person, idx, person1Lineage.length, 'left', isCommonAncestor);
-            }).join('') +
-            '</div>';
+        if (person1Lineage.length > 0) {
+            person1Card.innerHTML = '<div class="lineage-column left-lineage">' +
+                person1Lineage.map((person, idx) => {
+                    const isCommonAncestor = commonAncestor && person.id === commonAncestor.id;
+                    return renderLineageCard(person, idx, person1Lineage.length, 'left', isCommonAncestor);
+                }).join('') +
+                '</div>';
+        } else {
+            person1Card.innerHTML = '<div class="no-relationship">No ancestors found</div>';
+        }
         
         // Render Person 2's lineage (right column, bottom to top)
-        person2Card.innerHTML = '<div class="lineage-column right-lineage">' +
-            person2Lineage.map((person, idx) => {
-                const isCommonAncestor = commonAncestor && person.id === commonAncestor.id;
-                return renderLineageCard(person, idx, person2Lineage.length, 'right', isCommonAncestor);
-            }).join('') +
-            '</div>';
-        
-        // Clear path container (not needed in new design)
-        pathContainer.innerHTML = '';
+        if (person2Lineage.length > 0) {
+            person2Card.innerHTML = '<div class="lineage-column right-lineage">' +
+                person2Lineage.map((person, idx) => {
+                    const isCommonAncestor = commonAncestor && person.id === commonAncestor.id;
+                    return renderLineageCard(person, idx, person2Lineage.length, 'right', isCommonAncestor);
+                }).join('') +
+                '</div>';
+        } else {
+            person2Card.innerHTML = '<div class="no-relationship">No ancestors found</div>';
+        }
         
         // Display relationship info
         if (commonAncestor) {
@@ -466,10 +480,13 @@ async function initRelationshipView() {
         if (isBottom) cardClass += ' selected-person-card';
         if (isCommonAncestor) cardClass += ' common-ancestor-card';
         
+        const amharicName = person.name_amharic || '';
+        const englishName = person.name || 'Unknown';
+        
         return `
             <div class="${cardClass} ${side}" data-person-id="${person.id}">
-                <div class="lineage-card-name-amharic">${person.name_amharic || ''}</div>
-                <div class="lineage-card-name">${person.name}</div>
+                ${amharicName ? `<div class="lineage-card-name-amharic">${amharicName}</div>` : ''}
+                <div class="lineage-card-name">${englishName}</div>
                 ${!isTop ? '<div class="lineage-connector"></div>' : ''}
             </div>
         `;
