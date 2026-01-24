@@ -429,6 +429,8 @@ async function initRelationshipView() {
         const person2Lineage = result.person2_lineage || [];
         const commonAncestor = result.common_ancestor;
         const siblingsInfo = result.siblings_info || null;
+        const person1RelationshipLabel = result.person1_relationship_label || null;
+        const person2RelationshipLabel = result.person2_relationship_label || null;
         
         console.log('Person1 lineage:', person1Lineage); // Debug
         console.log('Person2 lineage:', person2Lineage); // Debug
@@ -468,7 +470,8 @@ async function initRelationshipView() {
                     const isBottom = idx === 0; // First person is at bottom
                     const isCommonAncestor = commonAncestor && person.id === commonAncestor.id;
                     const isSibling = siblingsInfo && siblingsInfo.relationship === 'siblings' && person.id === siblingsInfo.person1.id;
-                    return renderLineageCard(person, idx, person1Lineage.length, 'left', isCommonAncestor, isBottom, isSibling);
+                    const relationshipLabel = isBottom ? person1RelationshipLabel : null;
+                    return renderLineageCard(person, idx, person1Lineage.length, 'left', isCommonAncestor, isBottom, isSibling, relationshipLabel);
                 }).join('') +
                 '</div>';
         } else {
@@ -547,7 +550,7 @@ async function initRelationshipView() {
         }
     }
     
-    function renderLineageCard(person, index, total, side, isCommonAncestor, isBottom, isSibling) {
+    function renderLineageCard(person, index, total, side, isCommonAncestor, isBottom, isSibling, relationshipLabel) {
         const isTop = index === total - 1; // Last person (parent)
         
         let cardClass = 'lineage-person-card';
@@ -561,6 +564,9 @@ async function initRelationshipView() {
         let badge = '';
         if (isSibling) {
             badge = '<div class="sibling-badge">Sibling</div>';
+        } else if (relationshipLabel && isBottom) {
+            // Show relationship label on the selected person cards
+            badge = `<div class="relationship-label-badge">${relationshipLabel}</div>`;
         }
         
         return `

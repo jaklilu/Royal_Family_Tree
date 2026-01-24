@@ -529,13 +529,68 @@ def get_relationship():
                         else:
                             relationship_type = f"{cousin_level}th Cousins ({diff} times removed)"
         
+        # Determine relationship labels for each person
+        person1_relationship_label = None
+        person2_relationship_label = None
+        
+        if relationship_type and common_ancestor:
+            if relationship_type == "Same person":
+                person1_relationship_label = "Same Person"
+                person2_relationship_label = "Same Person"
+            elif relationship_type == "Siblings (same parent)":
+                person1_relationship_label = "Sibling"
+                person2_relationship_label = "Sibling"
+            elif "Cousins" in relationship_type or "cousins" in relationship_type.lower():
+                # Extract cousin level (1st, 2nd, 3rd, 4th, etc.)
+                if "Second Cousins" in relationship_type:
+                    person1_relationship_label = "2nd Cousin"
+                    person2_relationship_label = "2nd Cousin"
+                elif "Third Cousins" in relationship_type:
+                    person1_relationship_label = "3rd Cousin"
+                    person2_relationship_label = "3rd Cousin"
+                elif "Fourth Cousins" in relationship_type:
+                    person1_relationship_label = "4th Cousin"
+                    person2_relationship_label = "4th Cousin"
+                elif "Cousins" in relationship_type:
+                    person1_relationship_label = "1st Cousin"
+                    person2_relationship_label = "1st Cousin"
+                else:
+                    person1_relationship_label = "Cousin"
+                    person2_relationship_label = "Cousin"
+            elif "Aunt/Uncle" in relationship_type or "Niece/Nephew" in relationship_type:
+                # Determine which is the aunt/uncle and which is the niece/nephew
+                if gen1 == 1:
+                    # Person1 is child of common ancestor, Person2 is further down
+                    person1_relationship_label = "Aunt/Uncle"
+                    person2_relationship_label = "Niece/Nephew"
+                else:
+                    # Person2 is child of common ancestor, Person1 is further down
+                    person1_relationship_label = "Niece/Nephew"
+                    person2_relationship_label = "Aunt/Uncle"
+            elif "Great-Aunt/Uncle" in relationship_type:
+                if gen1 == 1:
+                    person1_relationship_label = "Great-Aunt/Uncle"
+                    person2_relationship_label = "Great-Niece/Nephew"
+                else:
+                    person1_relationship_label = "Great-Niece/Nephew"
+                    person2_relationship_label = "Great-Aunt/Uncle"
+            elif "Great-Great-Aunt/Uncle" in relationship_type:
+                if gen1 == 1:
+                    person1_relationship_label = "Great-Great-Aunt/Uncle"
+                    person2_relationship_label = "Great-Great-Niece/Nephew"
+                else:
+                    person1_relationship_label = "Great-Great-Niece/Nephew"
+                    person2_relationship_label = "Great-Great-Aunt/Uncle"
+        
         return jsonify({
             'found': True,
             'person1_lineage': person1_lineage,
             'person2_lineage': person2_lineage,
             'common_ancestor': common_ancestor.to_dict() if common_ancestor else None,
             'relationship_type': relationship_type,
-            'siblings_info': siblings_info
+            'siblings_info': siblings_info,
+            'person1_relationship_label': person1_relationship_label,
+            'person2_relationship_label': person2_relationship_label
         })
     except Exception as e:
         logger.error(f'Error finding relationship: {e}', exc_info=True)
