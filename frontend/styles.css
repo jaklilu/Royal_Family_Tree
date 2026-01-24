@@ -154,7 +154,7 @@ nav {
     width: 100%;
     height: 100%;
     pointer-events: none;
-    z-index: 1;
+    z-index: 0; /* Behind everything */
 }
 
 .section {
@@ -212,7 +212,8 @@ nav {
     min-height: 120px;
     justify-self: center; /* Center within grid cell */
     position: relative;
-    z-index: 3; /* Ensure cards are above tree lines (z-index: 1) */
+    z-index: 10; /* Ensure cards are well above tree lines (z-index: 0) */
+    isolation: isolate; /* Create new stacking context */
 }
 
 .person-card:hover {
