@@ -475,61 +475,43 @@ def get_relationship():
                 min_gen = min(gen1, gen2)
                 diff = abs(gen1 - gen2)
                 
-                if min_gen == 2:
-                    if diff == 0:
+                # Calculate individual cousin levels
+                person1_cousin_level = gen1 - 1
+                person2_cousin_level = gen2 - 1
+                
+                # Helper function to get cousin label
+                def get_cousin_label(level):
+                    if level == 1:
+                        return "1st Cousin"
+                    elif level == 2:
+                        return "2nd Cousin"
+                    elif level == 3:
+                        return "3rd Cousin"
+                    elif level == 4:
+                        return "4th Cousin"
+                    else:
+                        return f"{level}th Cousin"
+                
+                # Create relationship type based on individual levels
+                if diff == 0:
+                    # Same generation level
+                    if person1_cousin_level == 1:
                         relationship_type = "1st Cousins"
-                    elif diff == 1:
-                        relationship_type = "1st Cousins (1 generation apart)"
-                    elif diff == 2:
-                        relationship_type = "1st Cousins (2 generations apart)"
-                    else:
-                        relationship_type = f"1st Cousins ({diff} generations apart)"
-                elif min_gen == 3:
-                    if diff == 0:
+                    elif person1_cousin_level == 2:
                         relationship_type = "2nd Cousins"
-                    elif diff == 1:
-                        relationship_type = "2nd Cousins (1 generation apart)"
-                    else:
-                        relationship_type = f"2nd Cousins ({diff} generations apart)"
-                elif min_gen == 4:
-                    if diff == 0:
+                    elif person1_cousin_level == 3:
                         relationship_type = "3rd Cousins"
-                    elif diff == 1:
-                        relationship_type = "3rd Cousins (1 generation apart)"
-                    else:
-                        relationship_type = f"3rd Cousins ({diff} generations apart)"
-                elif min_gen == 5:
-                    if diff == 0:
+                    elif person1_cousin_level == 4:
                         relationship_type = "4th Cousins"
                     else:
-                        relationship_type = f"4th Cousins ({diff} generation{'s' if diff > 1 else ''} apart)"
+                        relationship_type = f"{person1_cousin_level}th Cousins"
                 else:
-                    # For more distant relationships
-                    cousin_level = min_gen - 1
-                    if diff == 0:
-                        if cousin_level == 1:
-                            relationship_type = "1st Cousins"
-                        elif cousin_level == 2:
-                            relationship_type = "2nd Cousins"
-                        elif cousin_level == 3:
-                            relationship_type = "3rd Cousins"
-                        elif cousin_level == 4:
-                            relationship_type = "4th Cousins"
-                        else:
-                            relationship_type = f"{cousin_level}th Cousins"
-                    else:
-                        if cousin_level == 1:
-                            relationship_type = f"1st Cousins ({diff} generation{'s' if diff > 1 else ''} apart)"
-                        elif cousin_level == 2:
-                            relationship_type = f"2nd Cousins ({diff} generation{'s' if diff > 1 else ''} apart)"
-                        elif cousin_level == 3:
-                            relationship_type = f"3rd Cousins ({diff} generation{'s' if diff > 1 else ''} apart)"
-                        elif cousin_level == 4:
-                            relationship_type = f"4th Cousins ({diff} generation{'s' if diff > 1 else ''} apart)"
-                        else:
-                            relationship_type = f"{cousin_level}th Cousins ({diff} generation{'s' if diff > 1 else ''} apart)"
+                    # Different generations - show both levels
+                    label1 = get_cousin_label(person1_cousin_level)
+                    label2 = get_cousin_label(person2_cousin_level)
+                    relationship_type = f"{label1} and {label2}"
         
-        # Determine relationship labels for each person
+        # Determine relationship labels for each person based on their individual generation levels
         person1_relationship_label = None
         person2_relationship_label = None
         
@@ -541,22 +523,38 @@ def get_relationship():
                 person1_relationship_label = "Sibling"
                 person2_relationship_label = "Sibling"
             elif "Cousins" in relationship_type or "cousins" in relationship_type.lower():
-                # Extract cousin level (1st, 2nd, 3rd, 4th, etc.)
-                if "2nd Cousins" in relationship_type or "Second Cousins" in relationship_type:
-                    person1_relationship_label = "2nd Cousin"
-                    person2_relationship_label = "2nd Cousin"
-                elif "3rd Cousins" in relationship_type or "Third Cousins" in relationship_type:
-                    person1_relationship_label = "3rd Cousin"
-                    person2_relationship_label = "3rd Cousin"
-                elif "4th Cousins" in relationship_type or "Fourth Cousins" in relationship_type:
-                    person1_relationship_label = "4th Cousin"
-                    person2_relationship_label = "4th Cousin"
-                elif "1st Cousins" in relationship_type or ("Cousins" in relationship_type and "2nd" not in relationship_type and "3rd" not in relationship_type and "4th" not in relationship_type and "Second" not in relationship_type and "Third" not in relationship_type and "Fourth" not in relationship_type):
+                # Calculate individual cousin levels based on each person's generation from common ancestor
+                # gen1 and gen2 are already calculated above (they should be >= 0 if common_ancestor exists)
+                # Cousin level = gen - 1 (gen=1 is sibling, gen=2 is 1st cousin, gen=3 is 2nd cousin, etc.)
+                # Only calculate if gen1 and gen2 are valid (>= 0) and > 1 (since gen=1 is sibling, not cousin)
+                person1_cousin_level = gen1 - 1 if gen1 >= 0 and gen1 > 1 else None
+                person2_cousin_level = gen2 - 1 if gen2 >= 0 and gen2 > 1 else None
+                
+                # Assign labels based on individual cousin levels
+                if person1_cousin_level == 1:
                     person1_relationship_label = "1st Cousin"
-                    person2_relationship_label = "1st Cousin"
+                elif person1_cousin_level == 2:
+                    person1_relationship_label = "2nd Cousin"
+                elif person1_cousin_level == 3:
+                    person1_relationship_label = "3rd Cousin"
+                elif person1_cousin_level == 4:
+                    person1_relationship_label = "4th Cousin"
+                elif person1_cousin_level and person1_cousin_level > 4:
+                    person1_relationship_label = f"{person1_cousin_level}th Cousin"
                 else:
-                    # Fallback for other cousin types
                     person1_relationship_label = "Cousin"
+                
+                if person2_cousin_level == 1:
+                    person2_relationship_label = "1st Cousin"
+                elif person2_cousin_level == 2:
+                    person2_relationship_label = "2nd Cousin"
+                elif person2_cousin_level == 3:
+                    person2_relationship_label = "3rd Cousin"
+                elif person2_cousin_level == 4:
+                    person2_relationship_label = "4th Cousin"
+                elif person2_cousin_level and person2_cousin_level > 4:
+                    person2_relationship_label = f"{person2_cousin_level}th Cousin"
+                else:
                     person2_relationship_label = "Cousin"
             elif "Aunt/Uncle" in relationship_type or "Niece/Nephew" in relationship_type:
                 # Determine which is the aunt/uncle and which is the niece/nephew
