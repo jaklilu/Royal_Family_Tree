@@ -524,8 +524,33 @@ async function initRelationshipView() {
         if (commonAncestor) {
             const ancestorName = commonAncestor.name_amharic || commonAncestor.name;
             const relationshipType = result.relationship_type || 'Related';
+            
+            let siblingsText = '';
+            if (siblingsInfo) {
+                const person1Name = siblingsInfo.person1.name_amharic || siblingsInfo.person1.name;
+                const person2Name = siblingsInfo.person2.name_amharic || siblingsInfo.person2.name;
+                const relationship = siblingsInfo.relationship || 'siblings';
+                
+                if (relationship === 'siblings') {
+                    siblingsText = `
+                        <p class="siblings-info">
+                            <strong>Siblings:</strong> ${person1Name} and ${person2Name} 
+                            (they share ${ancestorName} as their parent)
+                        </p>
+                    `;
+                } else if (relationship === 'cousins') {
+                    siblingsText = `
+                        <p class="cousins-info">
+                            <strong>Cousins:</strong> ${person1Name} and ${person2Name} 
+                            (they share ${ancestorName} as their grandparent)
+                        </p>
+                    `;
+                }
+            }
+            
             infoDiv.innerHTML = `
                 <p class="common-ancestor-info">Common Ancestor: <strong>${ancestorName}</strong></p>
+                ${siblingsText}
                 <p class="relationship-type">Relationship: <strong>${relationshipType}</strong></p>
             `;
         } else {
