@@ -311,6 +311,11 @@ def get_relationship():
         if person1_parent:
             person1_grandparent = get_parent(person1_parent.id)
         
+        # Get great-grandparent for person1 (grandparent's parent)
+        person1_greatgrandparent = None
+        if person1_grandparent:
+            person1_greatgrandparent = get_parent(person1_grandparent.id)
+        
         # Get parent for person2
         person2_parent = get_parent(person2_id)
         
@@ -319,18 +324,27 @@ def get_relationship():
         if person2_parent:
             person2_grandparent = get_parent(person2_parent.id)
         
-        # Build lineages: person -> parent -> grandparent
+        # Get great-grandparent for person2 (grandparent's parent)
+        person2_greatgrandparent = None
+        if person2_grandparent:
+            person2_greatgrandparent = get_parent(person2_grandparent.id)
+        
+        # Build lineages: person -> parent -> grandparent -> great-grandparent
         person1_lineage = [person1.to_dict()]
         if person1_parent:
             person1_lineage.append(person1_parent.to_dict())
         if person1_grandparent:
             person1_lineage.append(person1_grandparent.to_dict())
+        if person1_greatgrandparent:
+            person1_lineage.append(person1_greatgrandparent.to_dict())
         
         person2_lineage = [person2.to_dict()]
         if person2_parent:
             person2_lineage.append(person2_parent.to_dict())
         if person2_grandparent:
             person2_lineage.append(person2_grandparent.to_dict())
+        if person2_greatgrandparent:
+            person2_lineage.append(person2_greatgrandparent.to_dict())
         
         return jsonify({
             'found': True,

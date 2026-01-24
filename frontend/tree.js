@@ -456,7 +456,7 @@ async function initRelationshipView() {
         }
         
         // Display relationship info
-        infoDiv.innerHTML = '<p>Showing each person with their parent and grandparent.</p>';
+        infoDiv.innerHTML = '<p>Showing each person with their parent, grandparent, and great-grandparent.</p>';
     }
     
     function renderLineageCard(person, index, total, side, isCommonAncestor, isBottom) {
