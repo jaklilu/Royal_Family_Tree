@@ -662,27 +662,6 @@ nav {
     color: white;
 }
 
-/* Decorative connection lines for common ancestor */
-.lineage-person-card.common-ancestor-card::before,
-.lineage-person-card.common-ancestor-card::after {
-    content: '';
-    position: absolute;
-    top: 50%;
-    width: 2px;
-    height: 60px;
-    background: linear-gradient(to bottom, var(--accent-color-2), var(--accent-color));
-    z-index: -1;
-}
-
-.lineage-person-card.common-ancestor-card.left::before {
-    right: -1rem;
-    transform: translateY(-50%) rotate(15deg);
-}
-
-.lineage-person-card.common-ancestor-card.right::after {
-    left: -1rem;
-    transform: translateY(-50%) rotate(-15deg);
-}
 
 .lineage-card-name-amharic {
     font-size: 1.1rem;
