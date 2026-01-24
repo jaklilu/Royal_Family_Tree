@@ -469,7 +469,11 @@ async function initRelationshipView() {
         // Display relationship info
         if (commonAncestor) {
             const ancestorName = commonAncestor.name_amharic || commonAncestor.name;
-            infoDiv.innerHTML = `<p class="common-ancestor-info">Common Ancestor: <strong>${ancestorName}</strong></p>`;
+            const relationshipType = result.relationship_type || 'Related';
+            infoDiv.innerHTML = `
+                <p class="common-ancestor-info">Common Ancestor: <strong>${ancestorName}</strong></p>
+                <p class="relationship-type">Relationship: <strong>${relationshipType}</strong></p>
+            `;
         } else {
             infoDiv.innerHTML = '<p>No common ancestor found in the displayed generations.</p>';
         }

@@ -307,11 +307,13 @@ def get_relationship():
         person1_lineage = [person1.to_dict()]
         person2_lineage = [person2.to_dict()]
         
-        # Track all ancestors we've seen for person1
-        person1_ancestors = {person1_id}
+        # Track all ancestors we've seen for both people
+        person1_ancestors = {person1_id: 0}  # Store generation level
+        person2_ancestors = {person2_id: 0}
         
-        # Build person1's lineage going up
+        # Build person1's lineage going up (keep going until we find common ancestor or reach root)
         current1 = person1_id
+        generation1 = 0
         while True:
             parent1 = get_parent(current1)
             if not parent1:
@@ -321,12 +323,14 @@ def get_relationship():
             if parent1.id in person1_ancestors:
                 break
             
-            person1_ancestors.add(parent1.id)
+            generation1 += 1
+            person1_ancestors[parent1.id] = generation1
             person1_lineage.append(parent1.to_dict())
             current1 = parent1.id
         
-        # Build person2's lineage going up, checking for common ancestor
+        # Build person2's lineage going up, checking for common ancestor at each step
         current2 = person2_id
+        generation2 = 0
         common_ancestor = None
         common_ancestor_id = None
         
@@ -335,17 +339,20 @@ def get_relationship():
             if not parent2:
                 break
             
-            # Check if this ancestor is in person1's lineage
+            generation2 += 1
+            
+            # Check if this ancestor is in person1's ancestors
             if parent2.id in person1_ancestors:
                 common_ancestor = parent2
                 common_ancestor_id = parent2.id
                 person2_lineage.append(parent2.to_dict())
                 break
             
+            person2_ancestors[parent2.id] = generation2
             person2_lineage.append(parent2.to_dict())
             current2 = parent2.id
         
-        # Trim person1's lineage to only include up to common ancestor
+        # If we found common ancestor in person2's path, trim person1's lineage
         if common_ancestor_id:
             person1_lineage_trimmed = []
             for person_dict in person1_lineage:
@@ -353,6 +360,82 @@ def get_relationship():
                 if person_dict.get('id') == str(common_ancestor_id):
                     break
             person1_lineage = person1_lineage_trimmed
+        else:
+            # If not found yet, continue going up person1's side to find if person2 is in person1's ancestors
+            # This handles the case where person2 reached root but person1 has more ancestors
+            current1 = person1_lineage[-1].get('id') if person1_lineage else None
+            if current1:
+                current1 = uuid.UUID(current1)
+                generation1 = person1_ancestors.get(current1, 0)
+                
+                while True:
+                    parent1 = get_parent(current1)
+                    if not parent1:
+                        break
+                    
+                    if parent1.id in person1_ancestors:
+                        break
+                    
+                    generation1 += 1
+                    person1_ancestors[parent1.id] = generation1
+                    person1_lineage.append(parent1.to_dict())
+                    
+                    # Check if person2 is in this ancestor's descendants or if this is person2
+                    if parent1.id == person2_id or parent1.id in person2_ancestors:
+                        common_ancestor = parent1
+                        common_ancestor_id = parent1.id
+                        # Trim person2's lineage
+                        person2_lineage_trimmed = []
+                        for person_dict in person2_lineage:
+                            person2_lineage_trimmed.append(person_dict)
+                            if person_dict.get('id') == str(common_ancestor_id):
+                                break
+                        person2_lineage = person2_lineage_trimmed
+                        break
+                    
+                    current1 = parent1.id
+        
+        # Calculate relationship type
+        relationship_type = None
+        if common_ancestor_id:
+            # Get generation levels from the lineage arrays
+            gen1 = -1
+            gen2 = -1
+            for idx, person_dict in enumerate(person1_lineage):
+                if person_dict.get('id') == str(common_ancestor_id):
+                    gen1 = idx
+                    break
+            for idx, person_dict in enumerate(person2_lineage):
+                if person_dict.get('id') == str(common_ancestor_id):
+                    gen2 = idx
+                    break
+            gen1 = person1_ancestors.get(common_ancestor_id, -1)
+            gen2 = person2_ancestors.get(common_ancestor_id, -1)
+            
+            if gen1 == 0 and gen2 == 0:
+                relationship_type = "Same person"
+            elif gen1 == 1 and gen2 == 1:
+                relationship_type = "Siblings (same parent)"
+            elif gen1 == 1 and gen2 == 2:
+                relationship_type = "Aunt/Uncle and Niece/Nephew"
+            elif gen1 == 2 and gen2 == 1:
+                relationship_type = "Aunt/Uncle and Niece/Nephew"
+            elif gen1 == 2 and gen2 == 2:
+                relationship_type = "Cousins (same grandparent)"
+            elif gen1 == 1:
+                relationship_type = f"{gen2 - gen1} generation(s) removed from {person2.name_original}"
+            elif gen2 == 1:
+                relationship_type = f"{gen1 - gen2} generation(s) removed from {person1.name_original}"
+            else:
+                min_gen = min(gen1, gen2)
+                diff = abs(gen1 - gen2)
+                if min_gen == 2:
+                    if diff == 0:
+                        relationship_type = "Cousins"
+                    else:
+                        relationship_type = f"{diff} times removed cousins"
+                else:
+                    relationship_type = f"{min_gen - 1} times great-grandchildren of common ancestor"
         
         return jsonify({
             'found': True,

@@ -606,10 +606,22 @@ nav {
 .common-ancestor-info {
     color: var(--text-primary);
     font-size: 1rem;
+    margin-bottom: 0.5rem;
 }
 
 .common-ancestor-info strong {
     color: var(--accent-color);
+    font-weight: 600;
+}
+
+.relationship-type {
+    color: var(--text-primary);
+    font-size: 1rem;
+    margin-top: 0.5rem;
+}
+
+.relationship-type strong {
+    color: var(--accent-color-3);
     font-weight: 600;
 }
 
