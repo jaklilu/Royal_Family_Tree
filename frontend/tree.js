@@ -515,8 +515,8 @@ async function initRelationshipView() {
                     const isBottom = idx === 0; // First person is at bottom
                     const isCommonAncestor = commonAncestor && person.id === commonAncestor.id;
                     const isSibling = siblingsInfo && siblingsInfo.relationship === 'siblings' && person.id === siblingsInfo.person2.id;
-                    const isCousin = siblingsInfo && siblingsInfo.relationship === 'cousins' && person.id === siblingsInfo.person2.id;
-                    return renderLineageCard(person, idx, person2Lineage.length, 'right', isCommonAncestor, isBottom, isSibling, isCousin);
+                    const relationshipLabel = isBottom ? person2RelationshipLabel : null;
+                    return renderLineageCard(person, idx, person2Lineage.length, 'right', isCommonAncestor, isBottom, isSibling, relationshipLabel);
                 }).join('') +
                 '</div>';
         } else {

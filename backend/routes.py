@@ -543,18 +543,28 @@ def get_relationship():
             elif "Cousins" in relationship_type or "cousins" in relationship_type.lower():
                 # Extract cousin level (1st, 2nd, 3rd, 4th, etc.)
                 if "Second Cousins" in relationship_type:
-                    person1_relationship_label = "2nd Cousin"
-                    person2_relationship_label = "2nd Cousin"
+                    if "removed" in relationship_type.lower():
+                        # For removed cousins, both are still cousins but with different generations
+                        person1_relationship_label = "2nd Cousin"
+                        person2_relationship_label = "2nd Cousin"
+                    else:
+                        person1_relationship_label = "2nd Cousin"
+                        person2_relationship_label = "2nd Cousin"
                 elif "Third Cousins" in relationship_type:
                     person1_relationship_label = "3rd Cousin"
                     person2_relationship_label = "3rd Cousin"
                 elif "Fourth Cousins" in relationship_type:
                     person1_relationship_label = "4th Cousin"
                     person2_relationship_label = "4th Cousin"
-                elif "Cousins" in relationship_type:
-                    person1_relationship_label = "1st Cousin"
-                    person2_relationship_label = "1st Cousin"
+                elif "Cousins" in relationship_type and "Second" not in relationship_type and "Third" not in relationship_type and "Fourth" not in relationship_type:
+                    if "removed" in relationship_type.lower():
+                        person1_relationship_label = "1st Cousin"
+                        person2_relationship_label = "1st Cousin"
+                    else:
+                        person1_relationship_label = "1st Cousin"
+                        person2_relationship_label = "1st Cousin"
                 else:
+                    # Fallback for other cousin types
                     person1_relationship_label = "Cousin"
                     person2_relationship_label = "Cousin"
             elif "Aunt/Uncle" in relationship_type or "Niece/Nephew" in relationship_type:
