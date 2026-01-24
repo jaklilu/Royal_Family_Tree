@@ -66,6 +66,10 @@ const api = {
 
     async getRelationship(person1Id, person2Id) {
         return apiRequest(`/api/relationship?person1_id=${person1Id}&person2_id=${person2Id}`);
+    },
+
+    async getAllPeople() {
+        return apiRequest('/api/people');
     }
 };
 

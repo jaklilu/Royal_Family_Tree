@@ -53,25 +53,31 @@
             <div class="relationship-container">
                 <h2>Find Relationship Between Two People</h2>
                 
-                <div class="search-group">
-                    <label for="person1-search">Person 1:</label>
-                    <input type="text" id="person1-search" placeholder="Search for person..." autocomplete="off">
-                    <div id="person1-results" class="search-results"></div>
-                    <div id="person1-selected" class="selected-person"></div>
+                <div class="relationship-selectors">
+                    <div class="selector-group">
+                        <label for="person1-select">Person 1:</label>
+                        <select id="person1-select" class="person-select">
+                            <option value="">-- Select Person --</option>
+                        </select>
+                    </div>
+                    
+                    <div class="selector-group">
+                        <label for="person2-select">Person 2:</label>
+                        <select id="person2-select" class="person-select">
+                            <option value="">-- Select Person --</option>
+                        </select>
+                    </div>
                 </div>
                 
-                <div class="search-group">
-                    <label for="person2-search">Person 2:</label>
-                    <input type="text" id="person2-search" placeholder="Search for person..." autocomplete="off">
-                    <div id="person2-results" class="search-results"></div>
-                    <div id="person2-selected" class="selected-person"></div>
-                </div>
+                <button id="find-relationship-btn" class="btn-primary" disabled>Find Relationship</button>
                 
-                <button id="find-relationship-btn" class="btn-primary" disabled>Show Relationship</button>
-                
-                <div id="relationship-result" class="relationship-result hidden">
-                    <h3>Relationship Path:</h3>
-                    <div id="relationship-path"></div>
+                <div id="relationship-visualization" class="relationship-visualization hidden">
+                    <div class="relationship-graph">
+                        <div id="person1-card" class="relationship-person-card"></div>
+                        <div id="relationship-path-container" class="relationship-path-container"></div>
+                        <div id="person2-card" class="relationship-person-card"></div>
+                    </div>
+                    <div id="relationship-info" class="relationship-info"></div>
                 </div>
             </div>
         </div>
@@ -97,6 +103,9 @@
 
         // Initialize tree view
         initTreeView();
+        
+        // Initialize relationship view
+        initRelationshipView();
         initRelationshipView();
     </script>
 </body>

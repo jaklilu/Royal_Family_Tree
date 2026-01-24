@@ -247,6 +247,19 @@ def get_person(person_id):
         return get_error_response('SERVER_ERROR', 'Failed to get person', 500)
 
 
+@api_bp.route('/api/people', methods=['GET'])
+def get_all_people():
+    """Get all people for dropdown selection"""
+    try:
+        people = Person.query.filter_by(layer='base').order_by(Person.name_original.asc()).all()
+        return jsonify({
+            'people': [person.to_dict() for person in people]
+        })
+    except Exception as e:
+        logger.error(f'Error getting all people: {e}', exc_info=True)
+        return get_error_response('SERVER_ERROR', 'Failed to get people', 500)
+
+
 @api_bp.route('/api/relationship', methods=['GET'])
 def get_relationship():
     """Find shortest path between two people using BFS"""

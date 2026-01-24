@@ -309,132 +309,168 @@ function showError(message) {
 }
 
 // Initialize relationship view
-function initRelationshipView() {
-    const person1Search = document.getElementById('person1-search');
-    const person2Search = document.getElementById('person2-search');
+let allPeople = [];
+let person1Data = null;
+let person2Data = null;
+
+async function initRelationshipView() {
+    const person1Select = document.getElementById('person1-select');
+    const person2Select = document.getElementById('person2-select');
     const findBtn = document.getElementById('find-relationship-btn');
     
-    let person1 = null;
-    let person2 = null;
+    // Load all people for dropdowns
+    try {
+        const data = await api.getAllPeople();
+        allPeople = data.people || [];
+        populateDropdowns(person1Select, person2Select);
+    } catch (error) {
+        console.error('Failed to load people:', error);
+        showError('Failed to load people list');
+    }
     
-    // Person 1 search
-    person1Search.addEventListener('input', debounce(async (e) => {
-        const query = e.target.value.trim();
-        const resultsDiv = document.getElementById('person1-results');
-        
-        if (query.length < 2) {
-            resultsDiv.innerHTML = '';
-            return;
+    // Person 1 selection
+    person1Select.addEventListener('change', (e) => {
+        const personId = e.target.value;
+        if (personId) {
+            person1Data = allPeople.find(p => p.id === personId);
+            updateFindButton();
+        } else {
+            person1Data = null;
+            updateFindButton();
         }
-        
-        try {
-            const data = await api.search(query);
-            displaySearchResults(resultsDiv, data.results, (person) => {
-                person1 = person;
-                document.getElementById('person1-selected').textContent = `Selected: ${person.name}`;
-                person1Search.value = '';
-                resultsDiv.innerHTML = '';
-                updateFindButton();
-            });
-        } catch (error) {
-            console.error('Search failed:', error);
-        }
-    }, 300));
+    });
     
-    // Person 2 search
-    person2Search.addEventListener('input', debounce(async (e) => {
-        const query = e.target.value.trim();
-        const resultsDiv = document.getElementById('person2-results');
-        
-        if (query.length < 2) {
-            resultsDiv.innerHTML = '';
-            return;
+    // Person 2 selection
+    person2Select.addEventListener('change', (e) => {
+        const personId = e.target.value;
+        if (personId) {
+            person2Data = allPeople.find(p => p.id === personId);
+            updateFindButton();
+        } else {
+            person2Data = null;
+            updateFindButton();
         }
-        
-        try {
-            const data = await api.search(query);
-            displaySearchResults(resultsDiv, data.results, (person) => {
-                person2 = person;
-                const displayName = person.name_amharic || person.name;
-                document.getElementById('person2-selected').textContent = `Selected: ${displayName}`;
-                person2Search.value = '';
-                resultsDiv.innerHTML = '';
-                updateFindButton();
-            });
-        } catch (error) {
-            console.error('Search failed:', error);
-        }
-    }, 300));
+    });
     
     // Find relationship
     findBtn.addEventListener('click', async () => {
-        if (!person1 || !person2) return;
+        if (!person1Data || !person2Data) return;
         
         try {
             findBtn.disabled = true;
             findBtn.textContent = 'Finding...';
             
-            const result = await api.getRelationship(person1.id, person2.id);
-            displayRelationshipResult(result);
+            const result = await api.getRelationship(person1Data.id, person2Data.id);
+            displayRelationshipVisualization(result);
         } catch (error) {
-            document.getElementById('relationship-result').innerHTML = 
-                `<p class="error">Error: ${error.message}</p>`;
-            document.getElementById('relationship-result').classList.remove('hidden');
+            const visualization = document.getElementById('relationship-visualization');
+            visualization.innerHTML = `<p class="error">Error: ${error.message}</p>`;
+            visualization.classList.remove('hidden');
         } finally {
             findBtn.disabled = false;
-            findBtn.textContent = 'Show Relationship';
+            findBtn.textContent = 'Find Relationship';
         }
     });
     
     function updateFindButton() {
-        findBtn.disabled = !(person1 && person2);
+        findBtn.disabled = !(person1Data && person2Data);
     }
     
-    function displaySearchResults(container, results, onSelect) {
-        container.innerHTML = '';
+    function populateDropdowns(select1, select2) {
+        // Clear existing options (except first option)
+        select1.innerHTML = '<option value="">-- Select Person --</option>';
+        select2.innerHTML = '<option value="">-- Select Person --</option>';
         
-        if (results.length === 0) {
-            container.innerHTML = '<div class="search-result">No results found</div>';
-            return;
-        }
-        
-        results.forEach(person => {
-            const div = document.createElement('div');
-            div.className = 'search-result';
-            // Show Amharic name as primary, English as secondary
+        allPeople.forEach(person => {
             const displayName = person.name_amharic 
                 ? `${person.name_amharic} (${person.name})`
                 : person.name;
-            div.textContent = displayName;
-            div.addEventListener('click', () => onSelect(person));
-            container.appendChild(div);
+            
+            const option1 = document.createElement('option');
+            option1.value = person.id;
+            option1.textContent = displayName;
+            select1.appendChild(option1);
+            
+            const option2 = document.createElement('option');
+            option2.value = person.id;
+            option2.textContent = displayName;
+            select2.appendChild(option2);
         });
     }
     
-    function displayRelationshipResult(result) {
-        const resultDiv = document.getElementById('relationship-result');
-        const pathDiv = document.getElementById('relationship-path');
+    function displayRelationshipVisualization(result) {
+        const visualization = document.getElementById('relationship-visualization');
+        const person1Card = document.getElementById('person1-card');
+        const person2Card = document.getElementById('person2-card');
+        const pathContainer = document.getElementById('relationship-path-container');
+        const infoDiv = document.getElementById('relationship-info');
+        
+        visualization.classList.remove('hidden');
+        
+        // Display Person 1 card (left)
+        renderPersonCard(person1Card, person1Data, 'left');
+        
+        // Display Person 2 card (right)
+        renderPersonCard(person2Card, person2Data, 'right');
         
         if (!result.found) {
-            pathDiv.innerHTML = '<p>No relationship found between these two people.</p>';
+            pathContainer.innerHTML = '<div class="no-relationship">No relationship found</div>';
+            infoDiv.innerHTML = '<p class="error">These two people are not related in the family tree.</p>';
+        } else if (result.path.length === 0) {
+            pathContainer.innerHTML = '<div class="same-person">Same person selected</div>';
+            infoDiv.innerHTML = '<p>You selected the same person twice.</p>';
         } else {
-            if (result.path.length === 0) {
-                pathDiv.innerHTML = '<p>Same person selected.</p>';
+            // Display path in center
+            // result.path contains objects with {id, name}
+            const pathPeople = result.path.map(pathPerson => {
+                return allPeople.find(p => p.id === pathPerson.id) || {
+                    id: pathPerson.id,
+                    name: pathPerson.name || 'Unknown',
+                    name_amharic: null
+                };
+            });
+            
+            // Remove person1 and person2 from path (they're already displayed on sides)
+            const middlePath = pathPeople.filter(p => 
+                p.id !== person1Data.id && p.id !== person2Data.id
+            );
+            
+            if (middlePath.length === 0) {
+                // Direct relationship (parent-child or siblings)
+                pathContainer.innerHTML = '<div class="direct-relationship">Direct Relationship</div>';
             } else {
-                const pathHtml = result.path.map((person, idx) => {
-                    const arrow = idx < result.path.length - 1 ? ' → ' : '';
-                    return `<span class="path-person">${person.name}</span>${arrow}`;
+                // Display connecting people
+                pathContainer.innerHTML = middlePath.map((person, idx) => {
+                    const displayName = person.name_amharic || person.name;
+                    return `
+                        <div class="path-person-card">
+                            <div class="path-person-name-amharic">${person.name_amharic || ''}</div>
+                            <div class="path-person-name">${person.name}</div>
+                        </div>
+                        ${idx < middlePath.length - 1 ? '<div class="path-arrow">→</div>' : ''}
+                    `;
                 }).join('');
-                pathDiv.innerHTML = pathHtml;
-                
-                if (result.common_ancestor) {
-                    const ancestorName = result.common_ancestor.name_amharic || result.common_ancestor.name;
-                    pathDiv.innerHTML += `<p class="common-ancestor">Common Ancestor: ${ancestorName}</p>`;
-                }
+            }
+            
+            // Display relationship info
+            if (result.common_ancestor) {
+                const ancestorName = result.common_ancestor.name_amharic || result.common_ancestor.name;
+                infoDiv.innerHTML = `<p class="common-ancestor-info">Common Ancestor: <strong>${ancestorName}</strong></p>`;
+            } else {
+                infoDiv.innerHTML = `<p>Relationship path found (${result.path.length} steps)</p>`;
             }
         }
-        
-        resultDiv.classList.remove('hidden');
+    }
+    
+    function renderPersonCard(container, person, side) {
+        const displayName = person.name_amharic || person.name;
+        const englishName = person.name;
+        container.innerHTML = `
+            <div class="relationship-card ${side}">
+                <div class="relationship-card-name-amharic">${person.name_amharic || ''}</div>
+                <div class="relationship-card-name">${englishName}</div>
+            </div>
+        `;
     }
 }
 
