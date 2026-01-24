@@ -512,8 +512,9 @@ async function initRelationshipView() {
                 person2Lineage.map((person, idx) => {
                     const isBottom = idx === 0; // First person is at bottom
                     const isCommonAncestor = commonAncestor && person.id === commonAncestor.id;
-                    const isSibling = siblingsInfo && person.id === siblingsInfo.person2.id;
-                    return renderLineageCard(person, idx, person2Lineage.length, 'right', isCommonAncestor, isBottom, isSibling);
+                    const isSibling = siblingsInfo && siblingsInfo.relationship === 'siblings' && person.id === siblingsInfo.person2.id;
+                    const isCousin = siblingsInfo && siblingsInfo.relationship === 'cousins' && person.id === siblingsInfo.person2.id;
+                    return renderLineageCard(person, idx, person2Lineage.length, 'right', isCommonAncestor, isBottom, isSibling, isCousin);
                 }).join('') +
                 '</div>';
         } else {
