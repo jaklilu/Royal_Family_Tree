@@ -303,54 +303,62 @@ def get_relationship():
             
             return parent
         
-        # Get parent for person1
-        person1_parent = get_parent(person1_id)
-        
-        # Get grandparent for person1 (parent's parent)
-        person1_grandparent = None
-        if person1_parent:
-            person1_grandparent = get_parent(person1_parent.id)
-        
-        # Get great-grandparent for person1 (grandparent's parent)
-        person1_greatgrandparent = None
-        if person1_grandparent:
-            person1_greatgrandparent = get_parent(person1_grandparent.id)
-        
-        # Get parent for person2
-        person2_parent = get_parent(person2_id)
-        
-        # Get grandparent for person2 (parent's parent)
-        person2_grandparent = None
-        if person2_parent:
-            person2_grandparent = get_parent(person2_parent.id)
-        
-        # Get great-grandparent for person2 (grandparent's parent)
-        person2_greatgrandparent = None
-        if person2_grandparent:
-            person2_greatgrandparent = get_parent(person2_grandparent.id)
-        
-        # Build lineages: person -> parent -> grandparent -> great-grandparent
+        # Build lineages going up until we find a common ancestor
         person1_lineage = [person1.to_dict()]
-        if person1_parent:
-            person1_lineage.append(person1_parent.to_dict())
-        if person1_grandparent:
-            person1_lineage.append(person1_grandparent.to_dict())
-        if person1_greatgrandparent:
-            person1_lineage.append(person1_greatgrandparent.to_dict())
-        
         person2_lineage = [person2.to_dict()]
-        if person2_parent:
-            person2_lineage.append(person2_parent.to_dict())
-        if person2_grandparent:
-            person2_lineage.append(person2_grandparent.to_dict())
-        if person2_greatgrandparent:
-            person2_lineage.append(person2_greatgrandparent.to_dict())
+        
+        # Track all ancestors we've seen for person1
+        person1_ancestors = {person1_id}
+        
+        # Build person1's lineage going up
+        current1 = person1_id
+        while True:
+            parent1 = get_parent(current1)
+            if not parent1:
+                break
+            
+            # Check if we've seen this ancestor before (cycle detection)
+            if parent1.id in person1_ancestors:
+                break
+            
+            person1_ancestors.add(parent1.id)
+            person1_lineage.append(parent1.to_dict())
+            current1 = parent1.id
+        
+        # Build person2's lineage going up, checking for common ancestor
+        current2 = person2_id
+        common_ancestor = None
+        common_ancestor_id = None
+        
+        while True:
+            parent2 = get_parent(current2)
+            if not parent2:
+                break
+            
+            # Check if this ancestor is in person1's lineage
+            if parent2.id in person1_ancestors:
+                common_ancestor = parent2
+                common_ancestor_id = parent2.id
+                person2_lineage.append(parent2.to_dict())
+                break
+            
+            person2_lineage.append(parent2.to_dict())
+            current2 = parent2.id
+        
+        # Trim person1's lineage to only include up to common ancestor
+        if common_ancestor_id:
+            person1_lineage_trimmed = []
+            for person_dict in person1_lineage:
+                person1_lineage_trimmed.append(person_dict)
+                if person_dict.get('id') == str(common_ancestor_id):
+                    break
+            person1_lineage = person1_lineage_trimmed
         
         return jsonify({
             'found': True,
             'person1_lineage': person1_lineage,
             'person2_lineage': person2_lineage,
-            'common_ancestor': None
+            'common_ancestor': common_ancestor.to_dict() if common_ancestor else None
         })
     except Exception as e:
         logger.error(f'Error finding relationship: {e}', exc_info=True)
