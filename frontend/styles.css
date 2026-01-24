@@ -230,7 +230,7 @@ nav {
     border-color: transparent;
     border-width: 2px;
     font-weight: 600;
-    background: linear-gradient(135deg, #0db848 0%, #078930 100%);
+    background: linear-gradient(135deg, #DA121A 0%, #c81018 100%);
     color: white;
     box-shadow: var(--shadow-md);
     transform: none; /* Remove scale for uniform sizing */
