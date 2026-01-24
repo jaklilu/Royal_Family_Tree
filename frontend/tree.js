@@ -424,57 +424,43 @@ async function initRelationshipView() {
             return;
         }
         
-        // Display vertical trees: Person 1 lineage on left, Person 2 lineage on right
+        // Display vertical trees: Person 1 with parent on left, Person 2 with parent on right
         const person1Lineage = result.person1_lineage || [];
         const person2Lineage = result.person2_lineage || [];
-        const commonAncestor = result.common_ancestor;
         
         console.log('Person1 lineage:', person1Lineage); // Debug
         console.log('Person2 lineage:', person2Lineage); // Debug
         
-        if (person1Lineage.length === 0 && person2Lineage.length === 0) {
-            person1Card.innerHTML = '<div class="no-relationship">No lineage data available</div>';
-            person2Card.innerHTML = '';
-            infoDiv.innerHTML = '<p class="error">Unable to determine relationship paths.</p>';
-            return;
-        }
-        
-        // Render Person 1's lineage (left column, bottom to top)
+        // Render Person 1's lineage (left column: person at bottom, parent above)
         if (person1Lineage.length > 0) {
             person1Card.innerHTML = '<div class="lineage-column left-lineage">' +
                 person1Lineage.map((person, idx) => {
-                    const isCommonAncestor = commonAncestor && person.id === commonAncestor.id;
-                    return renderLineageCard(person, idx, person1Lineage.length, 'left', isCommonAncestor);
+                    const isBottom = idx === 0; // First person is at bottom
+                    return renderLineageCard(person, idx, person1Lineage.length, 'left', false, isBottom);
                 }).join('') +
                 '</div>';
         } else {
-            person1Card.innerHTML = '<div class="no-relationship">No ancestors found</div>';
+            person1Card.innerHTML = '<div class="no-relationship">No data available</div>';
         }
         
-        // Render Person 2's lineage (right column, bottom to top)
+        // Render Person 2's lineage (right column: person at bottom, parent above)
         if (person2Lineage.length > 0) {
             person2Card.innerHTML = '<div class="lineage-column right-lineage">' +
                 person2Lineage.map((person, idx) => {
-                    const isCommonAncestor = commonAncestor && person.id === commonAncestor.id;
-                    return renderLineageCard(person, idx, person2Lineage.length, 'right', isCommonAncestor);
+                    const isBottom = idx === 0; // First person is at bottom
+                    return renderLineageCard(person, idx, person2Lineage.length, 'right', false, isBottom);
                 }).join('') +
                 '</div>';
         } else {
-            person2Card.innerHTML = '<div class="no-relationship">No ancestors found</div>';
+            person2Card.innerHTML = '<div class="no-relationship">No data available</div>';
         }
         
         // Display relationship info
-        if (commonAncestor) {
-            const ancestorName = commonAncestor.name_amharic || commonAncestor.name;
-            infoDiv.innerHTML = `<p class="common-ancestor-info">Common Ancestor: <strong>${ancestorName}</strong></p>`;
-        } else {
-            infoDiv.innerHTML = '<p>No common ancestor found.</p>';
-        }
+        infoDiv.innerHTML = '<p>Showing each person with their parent.</p>';
     }
     
-    function renderLineageCard(person, index, total, side, isCommonAncestor) {
-        const isBottom = index === 0; // First person in lineage (the selected person)
-        const isTop = index === total - 1; // Last person (common ancestor or root)
+    function renderLineageCard(person, index, total, side, isCommonAncestor, isBottom) {
+        const isTop = index === total - 1; // Last person (parent)
         
         let cardClass = 'lineage-person-card';
         if (isBottom) cardClass += ' selected-person-card';

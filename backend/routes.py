@@ -262,7 +262,7 @@ def get_all_people():
 
 @api_bp.route('/api/relationship', methods=['GET'])
 def get_relationship():
-    """Find relationship with ancestry paths going up to common ancestor"""
+    """Get relationship showing each person with their parent"""
     person1_id = request.args.get('person1_id')
     person2_id = request.args.get('person2_id')
     
@@ -272,18 +272,6 @@ def get_relationship():
     if not validate_uuid(person1_id) or not validate_uuid(person2_id):
         return get_error_response('BAD_REQUEST', 'Invalid person ID format')
     
-    if person1_id == person2_id:
-        person = Person.query.filter_by(id=person1_id, layer='base').first()
-        if not person:
-            return get_error_response('NOT_FOUND', 'Person not found')
-        return jsonify({
-            'found': True,
-            'person1_lineage': [person.to_dict()],
-            'person2_lineage': [],
-            'common_ancestor': person.to_dict(),
-            'message': 'Same person'
-        })
-    
     try:
         person1 = Person.query.filter_by(id=person1_id, layer='base').first()
         person2 = Person.query.filter_by(id=person2_id, layer='base').first()
@@ -291,31 +279,63 @@ def get_relationship():
         if not person1 or not person2:
             return get_error_response('NOT_FOUND', 'One or both persons not found')
         
-        # Find common ancestor first
-        common_ancestor = find_common_ancestor(person1_id, person2_id)
+        # Get parent for person1 (prefer father, else mother, else any)
+        person1_parent = None
+        person1_parent_rels = Relationship.query.filter_by(
+            child_id=person1_id,
+            visibility='public'
+        ).options(joinedload(Relationship.parent)).all()
         
-        if common_ancestor:
-            # Build paths from each person up to the common ancestor
-            # This ensures we follow paths that actually lead to the common ancestor
-            person1_lineage = get_path_to_ancestor(person1_id, common_ancestor.id)
-            person2_lineage = get_path_to_ancestor(person2_id, common_ancestor.id)
-            
-            return jsonify({
-                'found': True,
-                'person1_lineage': person1_lineage,
-                'person2_lineage': person2_lineage,
-                'common_ancestor': common_ancestor.to_dict()
-            })
-        else:
-            # No common ancestor found, return full lineages
-            person1_lineage = get_ancestry_path(person1_id)
-            person2_lineage = get_ancestry_path(person2_id)
-            return jsonify({
-                'found': False,
-                'person1_lineage': person1_lineage,
-                'person2_lineage': person2_lineage,
-                'common_ancestor': None
-            })
+        for rel in person1_parent_rels:
+            if rel.relation_type == 'father':
+                person1_parent = rel.parent
+                break
+        
+        if not person1_parent:
+            for rel in person1_parent_rels:
+                if rel.relation_type == 'mother':
+                    person1_parent = rel.parent
+                    break
+        
+        if not person1_parent and person1_parent_rels:
+            person1_parent = person1_parent_rels[0].parent
+        
+        # Get parent for person2 (prefer father, else mother, else any)
+        person2_parent = None
+        person2_parent_rels = Relationship.query.filter_by(
+            child_id=person2_id,
+            visibility='public'
+        ).options(joinedload(Relationship.parent)).all()
+        
+        for rel in person2_parent_rels:
+            if rel.relation_type == 'father':
+                person2_parent = rel.parent
+                break
+        
+        if not person2_parent:
+            for rel in person2_parent_rels:
+                if rel.relation_type == 'mother':
+                    person2_parent = rel.parent
+                    break
+        
+        if not person2_parent and person2_parent_rels:
+            person2_parent = person2_parent_rels[0].parent
+        
+        # Build lineages: person and their parent
+        person1_lineage = [person1.to_dict()]
+        if person1_parent:
+            person1_lineage.append(person1_parent.to_dict())
+        
+        person2_lineage = [person2.to_dict()]
+        if person2_parent:
+            person2_lineage.append(person2_parent.to_dict())
+        
+        return jsonify({
+            'found': True,
+            'person1_lineage': person1_lineage,
+            'person2_lineage': person2_lineage,
+            'common_ancestor': None
+        })
     except Exception as e:
         logger.error(f'Error finding relationship: {e}', exc_info=True)
         return get_error_response('SERVER_ERROR', 'Failed to find relationship', 500)
