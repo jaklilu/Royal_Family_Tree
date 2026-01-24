@@ -69,7 +69,7 @@ nav {
 
 .nav-btn {
     padding: 0.75rem 2rem;
-    background: var(--card-background);
+    background: var(--accent-color-2);
     border: 2px solid var(--border-color);
     border-radius: 0.75rem;
     cursor: pointer;
@@ -80,7 +80,7 @@ nav {
 }
 
 .nav-btn:hover {
-    background: var(--card-background-hover);
+    background: #FEE500;
     border-color: var(--border-color-hover);
     transform: translateY(-2px);
     box-shadow: var(--shadow-md);
