@@ -433,19 +433,79 @@ def get_relationship():
             elif gen1 == 2 and gen2 == 2:
                 relationship_type = "Cousins (same grandparent)"
             elif gen1 == 1:
-                relationship_type = f"{gen2 - gen1} generation(s) removed from {person2.name_original}"
+                # Person1 is child of common ancestor, person2 is further down
+                if gen2 == 3:
+                    relationship_type = "Great-Aunt/Uncle and Great-Niece/Nephew"
+                elif gen2 == 4:
+                    relationship_type = "Great-Great-Aunt/Uncle and Great-Great-Niece/Nephew"
+                else:
+                    relationship_type = f"{gen2 - gen1} generation(s) removed"
             elif gen2 == 1:
-                relationship_type = f"{gen1 - gen2} generation(s) removed from {person1.name_original}"
+                # Person2 is child of common ancestor, person1 is further down
+                if gen1 == 3:
+                    relationship_type = "Great-Aunt/Uncle and Great-Niece/Nephew"
+                elif gen1 == 4:
+                    relationship_type = "Great-Great-Aunt/Uncle and Great-Great-Niece/Nephew"
+                else:
+                    relationship_type = f"{gen1 - gen2} generation(s) removed"
             else:
+                # Both are multiple generations from common ancestor
                 min_gen = min(gen1, gen2)
                 diff = abs(gen1 - gen2)
+                
                 if min_gen == 2:
                     if diff == 0:
                         relationship_type = "Cousins"
+                    elif diff == 1:
+                        relationship_type = "Cousins (once removed)"
+                    elif diff == 2:
+                        relationship_type = "Cousins (twice removed)"
                     else:
-                        relationship_type = f"{diff} times removed cousins"
+                        relationship_type = f"Cousins ({diff} times removed)"
+                elif min_gen == 3:
+                    if diff == 0:
+                        relationship_type = "Second Cousins"
+                    elif diff == 1:
+                        relationship_type = "Second Cousins (once removed)"
+                    else:
+                        relationship_type = f"Second Cousins ({diff} times removed)"
+                elif min_gen == 4:
+                    if diff == 0:
+                        relationship_type = "Third Cousins"
+                    elif diff == 1:
+                        relationship_type = "Third Cousins (once removed)"
+                    else:
+                        relationship_type = f"Third Cousins ({diff} times removed)"
+                elif min_gen == 5:
+                    if diff == 0:
+                        relationship_type = "Fourth Cousins"
+                    else:
+                        relationship_type = f"Fourth Cousins ({diff} times removed)"
                 else:
-                    relationship_type = f"{min_gen - 1} times great-grandchildren of common ancestor"
+                    # For more distant relationships
+                    cousin_level = min_gen - 1
+                    if diff == 0:
+                        if cousin_level == 1:
+                            relationship_type = "Cousins"
+                        elif cousin_level == 2:
+                            relationship_type = "Second Cousins"
+                        elif cousin_level == 3:
+                            relationship_type = "Third Cousins"
+                        elif cousin_level == 4:
+                            relationship_type = "Fourth Cousins"
+                        else:
+                            relationship_type = f"{cousin_level}th Cousins"
+                    else:
+                        if cousin_level == 1:
+                            relationship_type = f"Cousins ({diff} times removed)"
+                        elif cousin_level == 2:
+                            relationship_type = f"Second Cousins ({diff} times removed)"
+                        elif cousin_level == 3:
+                            relationship_type = f"Third Cousins ({diff} times removed)"
+                        elif cousin_level == 4:
+                            relationship_type = f"Fourth Cousins ({diff} times removed)"
+                        else:
+                            relationship_type = f"{cousin_level}th Cousins ({diff} times removed)"
         
         return jsonify({
             'found': True,
