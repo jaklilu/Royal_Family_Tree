@@ -468,7 +468,8 @@ async function initRelationshipView() {
                     const isBottom = idx === 0; // First person is at bottom
                     const isCommonAncestor = commonAncestor && person.id === commonAncestor.id;
                     const isSibling = siblingsInfo && person.id === siblingsInfo.person1.id;
-                    return renderLineageCard(person, idx, person1Lineage.length, 'left', isCommonAncestor, isBottom, isSibling);
+                    const isCousin = siblingsInfo && siblingsInfo.relationship === 'cousins' && person.id === siblingsInfo.person1.id;
+                    return renderLineageCard(person, idx, person1Lineage.length, 'left', isCommonAncestor, isBottom, isSibling, isCousin);
                 }).join('') +
                 '</div>';
         } else {
@@ -532,25 +533,28 @@ async function initRelationshipView() {
         }
     }
     
-    function renderLineageCard(person, index, total, side, isCommonAncestor, isBottom, isSibling) {
+    function renderLineageCard(person, index, total, side, isCommonAncestor, isBottom, isSibling, isCousin) {
         const isTop = index === total - 1; // Last person (parent)
         
         let cardClass = 'lineage-person-card';
         if (isBottom) cardClass += ' selected-person-card';
         if (isCommonAncestor) cardClass += ' common-ancestor-card';
         if (isSibling) cardClass += ' sibling-card';
+        if (isCousin) cardClass += ' cousin-card';
         
         const amharicName = person.name_amharic || '';
         const englishName = person.name || 'Unknown';
         
-        let siblingBadge = '';
+        let badge = '';
         if (isSibling) {
-            siblingBadge = '<div class="sibling-badge">Sibling</div>';
+            badge = '<div class="sibling-badge">Sibling</div>';
+        } else if (isCousin) {
+            badge = '<div class="cousin-badge">Cousin</div>';
         }
         
         return `
             <div class="${cardClass} ${side}" data-person-id="${person.id}">
-                ${siblingBadge}
+                ${badge}
                 ${amharicName ? `<div class="lineage-card-name-amharic">${amharicName}</div>` : ''}
                 <div class="lineage-card-name">${englishName}</div>
                 ${!isTop ? '<div class="lineage-connector"></div>' : ''}

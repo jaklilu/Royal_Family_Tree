@@ -411,16 +411,37 @@ def get_relationship():
                     gen2 = idx
                     break
             
-            # Check if the people one generation below the common ancestor are siblings
-            # (i.e., if gen1 > 0 and gen2 > 0, then person1_lineage[gen1-1] and person2_lineage[gen2-1] are siblings)
+            # Check if the people one generation below the common ancestor are siblings or cousins
+            # Siblings: gen1 == 1 and gen2 == 1 (share same parent)
+            # Cousins: gen1 == 2 and gen2 == 2 (share same grandparent)
             if gen1 > 0 and gen2 > 0:
-                sibling1 = person1_lineage[gen1 - 1]
-                sibling2 = person2_lineage[gen2 - 1]
-                siblings_info = {
-                    'person1': sibling1,
-                    'person2': sibling2,
-                    'generation_level': gen1
-                }
+                person1_below = person1_lineage[gen1 - 1]
+                person2_below = person2_lineage[gen2 - 1]
+                
+                if gen1 == 1 and gen2 == 1:
+                    # They are siblings (share same parent)
+                    siblings_info = {
+                        'person1': person1_below,
+                        'person2': person2_below,
+                        'generation_level': gen1,
+                        'relationship': 'siblings'
+                    }
+                elif gen1 == 2 and gen2 == 2:
+                    # They are cousins (share same grandparent)
+                    siblings_info = {
+                        'person1': person1_below,
+                        'person2': person2_below,
+                        'generation_level': gen1,
+                        'relationship': 'cousins'
+                    }
+                elif gen1 > 0 and gen2 > 0 and gen1 == gen2:
+                    # Same generation level from common ancestor - could be cousins or more distant
+                    siblings_info = {
+                        'person1': person1_below,
+                        'person2': person2_below,
+                        'generation_level': gen1,
+                        'relationship': 'cousins' if gen1 >= 2 else 'siblings'
+                    }
             
             if gen1 == 0 and gen2 == 0:
                 relationship_type = "Same person"
