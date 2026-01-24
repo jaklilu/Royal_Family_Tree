@@ -241,6 +241,15 @@ nav {
     max-width: 200px; /* Same as other cards */
 }
 
+/* Previous center person - lighter green */
+.person-card.previous-center {
+    background: rgba(13, 184, 72, 0.5) !important; /* Lighter green for previous center */
+}
+
+.person-card.previous-center:hover {
+    background: rgba(13, 184, 72, 0.6) !important; /* Slightly darker on hover */
+}
+
 .person-name {
     font-size: 1.1rem;
     font-weight: 500;

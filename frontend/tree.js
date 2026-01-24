@@ -1,4 +1,5 @@
 let currentPersonId = null;
+let previousPersonId = null; // Track the previous center person
 let searchTimeouts = {};
 
 // Update page title with person's name
@@ -37,6 +38,8 @@ async function initTreeView() {
 async function loadNeighborhood(personId) {
     try {
         showLoading();
+        // Track previous person before updating current
+        previousPersonId = currentPersonId;
         currentPersonId = personId;
         
         const data = await api.getNeighborhood(personId);
@@ -123,6 +126,10 @@ function renderChildren(children, isLeaf) {
     
     children.forEach(child => {
         const card = createPersonCard(child, 'child');
+        // Add lighter green class if this was the previous center person
+        if (previousPersonId && child.id === previousPersonId) {
+            card.classList.add('previous-center');
+        }
         card.addEventListener('click', () => loadNeighborhood(child.id));
         section.appendChild(card);
     });
