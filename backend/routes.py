@@ -395,8 +395,9 @@ def get_relationship():
                     
                     current1 = parent1.id
         
-        # Calculate relationship type
+        # Calculate relationship type and identify siblings
         relationship_type = None
+        siblings_info = None
         if common_ancestor_id:
             # Get generation levels from the lineage arrays
             gen1 = -1
@@ -409,6 +410,17 @@ def get_relationship():
                 if person_dict.get('id') == str(common_ancestor_id):
                     gen2 = idx
                     break
+            
+            # Check if the people one generation below the common ancestor are siblings
+            # (i.e., if gen1 > 0 and gen2 > 0, then person1_lineage[gen1-1] and person2_lineage[gen2-1] are siblings)
+            if gen1 > 0 and gen2 > 0:
+                sibling1 = person1_lineage[gen1 - 1]
+                sibling2 = person2_lineage[gen2 - 1]
+                siblings_info = {
+                    'person1': sibling1,
+                    'person2': sibling2,
+                    'generation_level': gen1
+                }
             gen1 = person1_ancestors.get(common_ancestor_id, -1)
             gen2 = person2_ancestors.get(common_ancestor_id, -1)
             

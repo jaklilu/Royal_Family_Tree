@@ -428,10 +428,12 @@ async function initRelationshipView() {
         const person1Lineage = result.person1_lineage || [];
         const person2Lineage = result.person2_lineage || [];
         const commonAncestor = result.common_ancestor;
+        const siblingsInfo = result.siblings_info || null;
         
         console.log('Person1 lineage:', person1Lineage); // Debug
         console.log('Person2 lineage:', person2Lineage); // Debug
         console.log('Common ancestor:', commonAncestor); // Debug
+        console.log('Siblings info:', siblingsInfo); // Debug
         
         const graphContainer = document.querySelector('.relationship-graph');
         if (commonAncestor && graphContainer) {
@@ -508,7 +510,8 @@ async function initRelationshipView() {
                 person2Lineage.map((person, idx) => {
                     const isBottom = idx === 0; // First person is at bottom
                     const isCommonAncestor = commonAncestor && person.id === commonAncestor.id;
-                    return renderLineageCard(person, idx, person2Lineage.length, 'right', isCommonAncestor, isBottom);
+                    const isSibling = siblingsInfo && person.id === siblingsInfo.person2.id;
+                    return renderLineageCard(person, idx, person2Lineage.length, 'right', isCommonAncestor, isBottom, isSibling);
                 }).join('') +
                 '</div>';
         } else {
@@ -528,18 +531,25 @@ async function initRelationshipView() {
         }
     }
     
-    function renderLineageCard(person, index, total, side, isCommonAncestor, isBottom) {
+    function renderLineageCard(person, index, total, side, isCommonAncestor, isBottom, isSibling) {
         const isTop = index === total - 1; // Last person (parent)
         
         let cardClass = 'lineage-person-card';
         if (isBottom) cardClass += ' selected-person-card';
         if (isCommonAncestor) cardClass += ' common-ancestor-card';
+        if (isSibling) cardClass += ' sibling-card';
         
         const amharicName = person.name_amharic || '';
         const englishName = person.name || 'Unknown';
         
+        let siblingBadge = '';
+        if (isSibling) {
+            siblingBadge = '<div class="sibling-badge">Sibling</div>';
+        }
+        
         return `
             <div class="${cardClass} ${side}" data-person-id="${person.id}">
+                ${siblingBadge}
                 ${amharicName ? `<div class="lineage-card-name-amharic">${amharicName}</div>` : ''}
                 <div class="lineage-card-name">${englishName}</div>
                 ${!isTop ? '<div class="lineage-connector"></div>' : ''}

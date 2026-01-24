@@ -632,6 +632,36 @@ nav {
     z-index: 10;
 }
 
+.lineage-person-card.sibling-card {
+    background: linear-gradient(135deg, #0db848 0%, #078930 100%);
+    color: white;
+    border-color: var(--accent-color-2);
+    border-width: 3px;
+    box-shadow: var(--shadow-md);
+    font-weight: 600;
+    position: relative;
+}
+
+.sibling-badge {
+    position: absolute;
+    top: -12px;
+    right: -12px;
+    background: linear-gradient(135deg, #FCDD09 0%, #FEE500 100%);
+    color: var(--text-primary);
+    padding: 0.25rem 0.75rem;
+    border-radius: 1rem;
+    font-size: 0.75rem;
+    font-weight: 700;
+    border: 2px solid var(--accent-color-3);
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+    z-index: 5;
+}
+
+.lineage-person-card.sibling-card .lineage-card-name-amharic,
+.lineage-person-card.sibling-card .lineage-card-name {
+    color: white;
+}
+
 /* Decorative connection lines for common ancestor */
 .lineage-person-card.common-ancestor-card::before,
 .lineage-person-card.common-ancestor-card::after {
@@ -743,6 +773,21 @@ nav {
 
 .relationship-type strong {
     color: var(--accent-color-3);
+    font-weight: 600;
+}
+
+.siblings-info {
+    color: var(--text-primary);
+    font-size: 0.95rem;
+    margin: 0.75rem 0;
+    padding: 0.75rem;
+    background: rgba(13, 184, 72, 0.1);
+    border-radius: 0.5rem;
+    border-left: 4px solid var(--accent-color);
+}
+
+.siblings-info strong {
+    color: var(--accent-color);
     font-weight: 600;
 }
 
