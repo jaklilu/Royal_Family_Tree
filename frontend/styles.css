@@ -211,6 +211,8 @@ nav {
     justify-content: center;
     min-height: 120px;
     justify-self: center; /* Center within grid cell */
+    position: relative;
+    z-index: 3; /* Ensure cards are above tree lines (z-index: 1) */
 }
 
 .person-card:hover {
