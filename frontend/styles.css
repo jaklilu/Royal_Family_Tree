@@ -572,26 +572,6 @@ nav {
     position: relative;
 }
 
-/* Connection bridge at the top where lineages meet */
-.relationship-graph::before {
-    content: '';
-    position: absolute;
-    top: 0;
-    left: 0;
-    right: 0;
-    height: 2px;
-    background: linear-gradient(to right, 
-        var(--accent-color) 0%, 
-        var(--accent-color-2) 50%, 
-        var(--accent-color) 100%);
-    z-index: 1;
-    opacity: 0;
-    transition: opacity 0.3s;
-}
-
-.relationship-graph.has-common-ancestor::before {
-    opacity: 1;
-}
 
 .lineage-person-card {
     background: var(--card-background);
