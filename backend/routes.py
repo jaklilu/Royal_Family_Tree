@@ -453,7 +453,9 @@ def get_relationship():
             'found': True,
             'person1_lineage': person1_lineage,
             'person2_lineage': person2_lineage,
-            'common_ancestor': common_ancestor.to_dict() if common_ancestor else None
+            'common_ancestor': common_ancestor.to_dict() if common_ancestor else None,
+            'relationship_type': relationship_type,
+            'siblings_info': siblings_info
         })
     except Exception as e:
         logger.error(f'Error finding relationship: {e}', exc_info=True)
