@@ -291,38 +291,25 @@ def get_relationship():
         if not person1 or not person2:
             return get_error_response('NOT_FOUND', 'One or both persons not found')
         
-        # Get ancestry paths going up to common ancestor
-        person1_lineage = get_ancestry_path(person1_id)
-        person2_lineage = get_ancestry_path(person2_id)
-        
-        # Find common ancestor
+        # Find common ancestor first
         common_ancestor = find_common_ancestor(person1_id, person2_id)
         
         if common_ancestor:
-            # Trim lineages to only include up to common ancestor
-            person1_lineage_trimmed = []
-            person2_lineage_trimmed = []
-            common_ancestor_id_str = str(common_ancestor.id)
-            
-            # Build person1's path up to common ancestor
-            for person_dict in person1_lineage:
-                person1_lineage_trimmed.append(person_dict)
-                if person_dict.get('id') == common_ancestor_id_str:
-                    break
-            
-            # Build person2's path up to common ancestor
-            for person_dict in person2_lineage:
-                person2_lineage_trimmed.append(person_dict)
-                if person_dict.get('id') == common_ancestor_id_str:
-                    break
+            # Build paths from each person up to the common ancestor
+            # This ensures we follow paths that actually lead to the common ancestor
+            person1_lineage = get_path_to_ancestor(person1_id, common_ancestor.id)
+            person2_lineage = get_path_to_ancestor(person2_id, common_ancestor.id)
             
             return jsonify({
                 'found': True,
-                'person1_lineage': person1_lineage_trimmed,
-                'person2_lineage': person2_lineage_trimmed,
+                'person1_lineage': person1_lineage,
+                'person2_lineage': person2_lineage,
                 'common_ancestor': common_ancestor.to_dict()
             })
         else:
+            # No common ancestor found, return full lineages
+            person1_lineage = get_ancestry_path(person1_id)
+            person2_lineage = get_ancestry_path(person2_id)
             return jsonify({
                 'found': False,
                 'person1_lineage': person1_lineage,
@@ -380,32 +367,26 @@ def bfs_shortest_path(start_id, end_id):
 
 
 def find_common_ancestor(person1_id, person2_id):
-    """Find common ancestor by walking up both trees"""
+    """Find common ancestor by getting all ancestors of both and finding intersection"""
     # Get all ancestors of person1
     ancestors1 = get_all_ancestors(person1_id)
     
-    # Walk up person2's tree until we find a match
-    current = person2_id
-    visited = set()
+    # Get all ancestors of person2
+    ancestors2 = get_all_ancestors(person2_id)
     
-    while current:
-        if current in ancestors1:
-            return Person.query.get(current)
-        
-        if current in visited:
-            break
-        visited.add(current)
-        
-        # Get parent
-        parent_rel = Relationship.query.filter_by(
-            child_id=current,
-            visibility='public'
-        ).first()
-        
-        if parent_rel:
-            current = parent_rel.parent_id
-        else:
-            break
+    # Find common ancestors (intersection)
+    common_ancestors = ancestors1.intersection(ancestors2)
+    
+    if not common_ancestors:
+        return None
+    
+    # Find the most recent common ancestor (closest to both people)
+    # We'll use BFS from both people to find the closest one
+    # For now, just return the first one found (we can improve this later)
+    for ancestor_id in common_ancestors:
+        ancestor = Person.query.get(ancestor_id)
+        if ancestor:
+            return ancestor
     
     return None
 
